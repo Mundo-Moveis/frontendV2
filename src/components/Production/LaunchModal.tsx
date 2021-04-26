@@ -1,37 +1,76 @@
 import { Col, Form, Input, Row, Select } from 'antd';
 import Modal from 'antd/lib/modal/Modal';
+import { useContext, useState } from 'react';
 import BarcodeReader from 'react-barcode-reader';
-import { useContext, useEffect, useState } from 'react';
 import { LaunchContext } from '../../context/Production/LaunchContext';
 import { api } from '../../services/api';
 import styles from '../../styles/Components/Production/LaunchModal.module.scss';
+import { Notification } from '../Notification';
 
 const { Option } = Select;
 
+interface IProduct {
+  id: string;
+  productionPlanControlName: string;
+  productName: string;
+  barcode: string;
+}
 export function LaunchModal() {
   const [confirmLoading, setConfirmLoading] = useState(false);
 
-  const { launchModalToggle, employees } = useContext(LaunchContext);
+  const { launchModalToggle, employees, saveEmployeeIdAfterSave } = useContext(
+    LaunchContext
+  );
   const [employeeId, setEmployeeId] = useState(0);
-  const [barcode, setBarcode] = useState('');
 
-  async function launchBarcode(Barcode: string) {
+  const [products, setProducts] = useState([{} as IProduct]);
+
+  async function launchBarcode(barcode: string) {
+    var t0 = performance.now();
     try {
       const response = await api.put(`production/barcode/release/${barcode}`, {
         employee_id: employeeId,
       });
-      console.log(response);
+      const newProduct: IProduct[] = [...products, response.data.product];
+      setProducts(newProduct);
+
+      if (saveEmployeeIdAfterSave) {
+        setEmployeeId(null);
+      }
+
+      Notification({
+        type: 'success',
+        description: 'Código lançado com sucesso!',
+        title: 'Sucesso!',
+      });
     } catch (error) {
-      console.log(error, 'eees');
+      console.log(typeof error);
+      if (error.response === undefined) {
+        Notification({
+          type: 'error',
+          description: 'Ocorreu um erro inesperado!',
+          title: 'ERRO!',
+        });
+      } else {
+        Notification({
+          type: 'error',
+          description: error.response.data.message,
+          title: 'Erro ao lançar!',
+        });
+      }
     }
+
+    var t1 = performance.now();
+    console.log(t1 - t0);
   }
 
   async function onRead(e) {
     if (employeeId === 0) {
-      setEmployeeId(e);
+      setEmployeeId(Number(e));
     } else {
+      setConfirmLoading(true);
       await launchBarcode(e);
-      setBarcode(e);
+      setConfirmLoading(false);
     }
   }
 
@@ -41,46 +80,59 @@ export function LaunchModal() {
       visible={true}
       confirmLoading={confirmLoading}
       width={650}
-      onCancel={launchModalToggle}
-      key="1"
-      onOk={launchModalToggle}
+      onCancel={() => launchModalToggle(false)}
+      onOk={() => launchModalToggle(false)}
     >
       <Form name="dynamic_form_nest_item" autoComplete="off">
-        <Row gutter={5} key="1">
-          <Col span={12} key={'2'}>
+        <Row gutter={5}>
+          <Col span={12}>
             <Form.Item
               labelCol={{ span: 23 }}
               label="Funcionário:"
               labelAlign={'left'}
               name={'employee'}
             >
-              <Select
-                showSearch
-                placeholder="Selecione"
-                size="large"
-                value={employeeId}
-                onChange={(e) => {
-                  setEmployeeId(e);
-                }}
-                filterOption={(input, option) =>
-                  option.children.toLowerCase().indexOf(input.toLowerCase()) >=
-                  0
-                }
-              >
-                {employees.map((option) => {
-                  return (
-                    <>
-                      <Option key={option.id} value={option.id}>
-                        {option.name}
-                      </Option>
-                    </>
-                  );
-                })}
-              </Select>
+              <>
+                <Select
+                  id={'employeeSelect'}
+                  showSearch
+                  placeholder="Selecione"
+                  size="large"
+                  value={employeeId}
+                  onChange={(e) => {
+                    setEmployeeId(e);
+                  }}
+                  filterOption={(input, option) =>
+                    option.children
+                      .toLowerCase()
+                      .indexOf(input.toLowerCase()) >= 0
+                  }
+                  // eslint-disable-next-line max-len
+                  filterSort={(optionA, optionB) =>
+                    optionA.children
+                      .toLowerCase()
+                      .localeCompare(optionB.children.toLowerCase())
+                  }
+                >
+                  <Option key={0} value={0}>
+                    não selecionado
+                  </Option>
+                  {employees.map((option) => {
+                    return (
+                      <>
+                        <Option key={option.id} value={option.id}>
+                          {option.name}
+                        </Option>
+                      </>
+                    );
+                  })}
+                </Select>
+              </>
             </Form.Item>
           </Col>
 
-          <Col span={12} key={'1'}>
+          <BarcodeReader onScan={onRead} onError={onRead} />
+          <Col span={12}>
             <Form.Item
               name={'tag'}
               labelCol={{ span: 23 }}
@@ -103,18 +155,18 @@ export function LaunchModal() {
                 </tr>
               </thead>
               <tbody>
-                {employees.map((episode, index) => {
+                {products.map((product) => {
                   return (
-                    <tr key={episode.id}>
-                      <td>algo sofa do caralho pqp aaaaaa</td>
-                      <td>oba</td>
+                    <tr key={product.id}>
+                      <td>{product.barcode}</td>
+                      <td>{product.productionPlanControlName}</td>
+                      <td>{product.productName}</td>
                     </tr>
                   );
                 })}
               </tbody>
             </table>
           </section>
-          <BarcodeReader onScan={onRead} onError={onRead} />
         </Row>
       </Form>
     </Modal>

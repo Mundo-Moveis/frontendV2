@@ -3,15 +3,6 @@ import { useContext } from 'react';
 import { LaunchContext } from '../../context/Production/LaunchContext';
 import styles from '../../pages/production/productionLaunch.module.scss';
 
-interface IEmployee {
-  id: number;
-  name: string;
-}
-
-interface IEmployeeRequest {
-  employees: IEmployee[];
-}
-
 export default function LaunchButtons() {
   const { launchModalToggle } = useContext(LaunchContext);
   return (
@@ -19,11 +10,15 @@ export default function LaunchButtons() {
       <button
         type="button"
         className={styles.launch}
-        onClick={launchModalToggle}
+        onClick={(e) => launchModalToggle(false)}
       >
         Lançamento
       </button>
-      <button type="button" className={styles.groupedLaunch}>
+      <button
+        type="button"
+        className={styles.groupedLaunch}
+        onClick={(e) => launchModalToggle(true)}
+      >
         Lançamento Agrupado
       </button>
       <button type="button" className={styles.defect}>
