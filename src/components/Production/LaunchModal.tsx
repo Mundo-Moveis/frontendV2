@@ -6,6 +6,7 @@ import { LaunchContext } from '../../context/Production/LaunchContext';
 import { api } from '../../services/api';
 import styles from '../../styles/Components/Production/LaunchModal.module.scss';
 import { Notification } from '../Notification';
+import { FiCheck } from 'react-icons/fi';
 
 const { Option } = Select;
 
@@ -31,8 +32,14 @@ export function LaunchModal() {
       const response = await api.put(`production/barcode/release/${barcode}`, {
         employee_id: employeeId,
       });
-      const newProduct: IProduct[] = [...products, response.data.product];
-      setProducts(newProduct);
+      console.log(products[0].id);
+
+      if (products[0].id === undefined) {
+        setProducts([response.data.product]);
+      } else {
+        const newProduct: IProduct[] = [...products, response.data.product];
+        setProducts(newProduct);
+      }
 
       if (saveEmployeeIdAfterSave) {
         setEmployeeId(null);
@@ -144,8 +151,15 @@ export function LaunchModal() {
           </Col>
         </Row>
         <Row>
+          <Col span={24}>
+            <button className={styles.launchButton}>
+              <FiCheck />
+            </button>
+          </Col>
+        </Row>
+        <Row>
           <section className={styles.table}>
-            <h2>Todos Sofá</h2>
+            <h2>Produtos bipados</h2>
             <table>
               <thead>
                 <tr>

@@ -40,3 +40,19 @@
     }
   }
 }
+.launchButton {
+  background: #13a54b;
+  width: 100%;
+  height: 2.5rem;
+  border: 0;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 1.7rem;
+  transition: filter 0.2s;
+  padding-top: 0.2rem;
+  margin-bottom: 1rem;
+
+  &:hover {
+    filter: brightness(0.9);
+  }
+}
