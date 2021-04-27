@@ -16,16 +16,12 @@ interface IProduct {
   productName: string;
   barcode: string;
 }
-export function LaunchModal() {
+export function DefectModal() {
   const [confirmLoading, setConfirmLoading] = useState(false);
 
-  const {
-    launchModalToggle,
-    employees,
-    saveEmployeeIdAfterSave,
-    launched,
-    setLaunched,
-  } = useContext(LaunchContext);
+  const { defectModalToggle, employees, saveEmployeeIdAfterSave } = useContext(
+    LaunchContext
+  );
   const [employeeId, setEmployeeId] = useState(0);
   const [barcode, setBarcode] = useState('');
 
@@ -34,10 +30,9 @@ export function LaunchModal() {
   async function launchBarcode(barcode: string) {
     var t0 = performance.now();
     try {
-      const response = await api.put(`production/barcode/release/${barcode}`, {
+      const response = await api.put(`production/barcode/defect/${barcode}`, {
         employee_id: employeeId,
       });
-      setLaunched(launched + 1);
 
       if (products[0].id === undefined) {
         setProducts([response.data.product]);
@@ -56,7 +51,6 @@ export function LaunchModal() {
         title: 'Sucesso!',
       });
     } catch (error) {
-      console.log(typeof error);
       if (error.response === undefined) {
         Notification({
           type: 'error',
@@ -73,7 +67,6 @@ export function LaunchModal() {
     }
 
     var t1 = performance.now();
-    console.log(t1 - t0);
   }
 
   async function onRead(e) {
@@ -88,12 +81,12 @@ export function LaunchModal() {
 
   return (
     <Modal
-      title="Lançamento de produção"
+      title="Lançamento defeito"
       visible={true}
       confirmLoading={confirmLoading}
       width={650}
-      onCancel={() => launchModalToggle(false)}
-      onOk={() => launchModalToggle(false)}
+      onCancel={defectModalToggle}
+      onOk={defectModalToggle}
     >
       <Form name="dynamic_form_nest_item" autoComplete="off">
         <Row gutter={5}>
@@ -172,7 +165,7 @@ export function LaunchModal() {
             </Col>
           </Row>
         )}
-        <h1 className={styles.launchedNumber}>{launched}</h1>
+
         <Row>
           <section className={styles.table}>
             <h2>Produtos bipados</h2>

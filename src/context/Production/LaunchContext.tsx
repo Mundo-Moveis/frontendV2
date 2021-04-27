@@ -1,6 +1,8 @@
 import { GetStaticProps } from 'next';
 import { createContext, ReactNode, useState } from 'react';
+import { DefectModal } from '../../components/Production/DefectModal';
 import { LaunchModal } from '../../components/Production/LaunchModal';
+import { ReversalModal } from '../../components/Production/ReversalModal';
 
 interface LaunchContextProviderProps {
   children: ReactNode;
@@ -13,6 +15,8 @@ interface ILaunchContext {
   saveEmployeeIdAfterSave: boolean;
   launched: number;
   setLaunched: (param: number) => void;
+  defectModalToggle: () => void;
+  reversalModalToggle: () => void;
 }
 
 interface IEmployee {
@@ -26,6 +30,8 @@ export function LaunchContextProvider({
   children,
 }: LaunchContextProviderProps) {
   const [isLaunchModalOpen, setIsLaunchModalOpen] = useState(false);
+  const [isDefectModalOpen, setIsDefectModalOpen] = useState(false);
+  const [isReversalModalOpen, setIsReversalModalOpen] = useState(false);
   const [employees, setEmployees] = useState([{} as IEmployee]);
   const [saveEmployeeIdAfterSave, setSaveEmployeeIdAfterSave] = useState(false);
 
@@ -34,6 +40,14 @@ export function LaunchContextProvider({
   function launchModalToggle(saveEmployee: boolean) {
     setIsLaunchModalOpen(!isLaunchModalOpen);
     setSaveEmployeeIdAfterSave(saveEmployee);
+  }
+
+  function defectModalToggle() {
+    setIsDefectModalOpen(!isDefectModalOpen);
+  }
+
+  function reversalModalToggle() {
+    setIsReversalModalOpen(!isReversalModalOpen);
   }
 
   return (
@@ -45,10 +59,14 @@ export function LaunchContextProvider({
         saveEmployeeIdAfterSave,
         launched,
         setLaunched,
+        defectModalToggle,
+        reversalModalToggle,
       }}
     >
       {children}
       {isLaunchModalOpen && <LaunchModal />}
+      {isDefectModalOpen && <DefectModal />}
+      {isReversalModalOpen && <ReversalModal />}
     </LaunchContext.Provider>
   );
 }

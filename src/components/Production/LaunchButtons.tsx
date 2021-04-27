@@ -6,7 +6,11 @@ import styles from '../../styles/Components/Production/ButtonsLaunch.module.scss
 import { AiOutlineBarcode, AiOutlineUndo, AiOutlineTool } from 'react-icons/ai';
 
 export default function LaunchButtons() {
-  const { launchModalToggle } = useContext(LaunchContext);
+  const {
+    launchModalToggle,
+    defectModalToggle,
+    reversalModalToggle,
+  } = useContext(LaunchContext);
   return (
     <div className={styles.container}>
       <button
@@ -23,10 +27,18 @@ export default function LaunchButtons() {
       >
         <AiOutlineBarcode />
       </button>
-      <button type="button" className={styles.defect}>
+      <button
+        type="button"
+        className={styles.defect}
+        onClick={defectModalToggle}
+      >
         <AiOutlineTool />
       </button>
-      <button type="button" className={styles.reversal}>
+      <button
+        type="button"
+        className={styles.reversal}
+        onClick={reversalModalToggle}
+      >
         <AiOutlineUndo />
       </button>
     </div>

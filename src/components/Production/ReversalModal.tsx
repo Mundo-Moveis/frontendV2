@@ -16,17 +16,11 @@ interface IProduct {
   productName: string;
   barcode: string;
 }
-export function LaunchModal() {
+export function ReversalModal() {
   const [confirmLoading, setConfirmLoading] = useState(false);
 
-  const {
-    launchModalToggle,
-    employees,
-    saveEmployeeIdAfterSave,
-    launched,
-    setLaunched,
-  } = useContext(LaunchContext);
-  const [employeeId, setEmployeeId] = useState(0);
+  const { reversalModalToggle } = useContext(LaunchContext);
+
   const [barcode, setBarcode] = useState('');
 
   const [products, setProducts] = useState([{} as IProduct]);
@@ -34,10 +28,7 @@ export function LaunchModal() {
   async function launchBarcode(barcode: string) {
     var t0 = performance.now();
     try {
-      const response = await api.put(`production/barcode/release/${barcode}`, {
-        employee_id: employeeId,
-      });
-      setLaunched(launched + 1);
+      const response = await api.put(`production/barcode/reversal/${barcode}`);
 
       if (products[0].id === undefined) {
         setProducts([response.data.product]);
@@ -46,17 +37,12 @@ export function LaunchModal() {
         setProducts(newProduct);
       }
 
-      if (saveEmployeeIdAfterSave) {
-        setEmployeeId(null);
-      }
-
       Notification({
         type: 'success',
         description: 'Código lançado com sucesso!',
         title: 'Sucesso!',
       });
     } catch (error) {
-      console.log(typeof error);
       if (error.response === undefined) {
         Notification({
           type: 'error',
@@ -73,78 +59,27 @@ export function LaunchModal() {
     }
 
     var t1 = performance.now();
-    console.log(t1 - t0);
   }
 
   async function onRead(e) {
-    if (employeeId === 0) {
-      setEmployeeId(Number(e));
-    } else {
-      setConfirmLoading(true);
-      await launchBarcode(e);
-      setConfirmLoading(false);
-    }
+    setConfirmLoading(true);
+    await launchBarcode(e);
+    setConfirmLoading(false);
   }
 
   return (
     <Modal
-      title="Lançamento de produção"
+      title="Lançamento defeito"
       visible={true}
       confirmLoading={confirmLoading}
       width={650}
-      onCancel={() => launchModalToggle(false)}
-      onOk={() => launchModalToggle(false)}
+      onCancel={reversalModalToggle}
+      onOk={reversalModalToggle}
     >
       <Form name="dynamic_form_nest_item" autoComplete="off">
-        <Row gutter={5}>
-          <Col span={12}>
-            <Form.Item
-              labelCol={{ span: 23 }}
-              label="Funcionário:"
-              labelAlign={'left'}
-              name={'employee'}
-            >
-              <>
-                <Select
-                  id={'employeeSelect'}
-                  showSearch
-                  placeholder="Selecione"
-                  size="large"
-                  value={employeeId}
-                  onChange={(e) => {
-                    setEmployeeId(e);
-                  }}
-                  filterOption={(input, option) =>
-                    option.children
-                      .toLowerCase()
-                      .indexOf(input.toLowerCase()) >= 0
-                  }
-                  // eslint-disable-next-line max-len
-                  filterSort={(optionA, optionB) =>
-                    optionA.children
-                      .toLowerCase()
-                      .localeCompare(optionB.children.toLowerCase())
-                  }
-                >
-                  <Option key={0} value={0}>
-                    não selecionado
-                  </Option>
-                  {employees.map((option) => {
-                    return (
-                      <>
-                        <Option key={option.id} value={option.id}>
-                          {option.name}
-                        </Option>
-                      </>
-                    );
-                  })}
-                </Select>
-              </>
-            </Form.Item>
-          </Col>
-
+        <Row>
           <BarcodeReader onScan={onRead} onError={onRead} />
-          <Col span={12}>
+          <Col>
             <Form.Item
               name={'tag'}
               labelCol={{ span: 23 }}
@@ -172,7 +107,7 @@ export function LaunchModal() {
             </Col>
           </Row>
         )}
-        <h1 className={styles.launchedNumber}>{launched}</h1>
+
         <Row>
           <section className={styles.table}>
             <h2>Produtos bipados</h2>
