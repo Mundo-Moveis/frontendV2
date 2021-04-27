@@ -19,10 +19,15 @@ interface IProduct {
 export function LaunchModal() {
   const [confirmLoading, setConfirmLoading] = useState(false);
 
-  const { launchModalToggle, employees, saveEmployeeIdAfterSave } = useContext(
-    LaunchContext
-  );
+  const {
+    launchModalToggle,
+    employees,
+    saveEmployeeIdAfterSave,
+    launched,
+    setLaunched,
+  } = useContext(LaunchContext);
   const [employeeId, setEmployeeId] = useState(0);
+  const [barcode, setBarcode] = useState('');
 
   const [products, setProducts] = useState([{} as IProduct]);
 
@@ -32,7 +37,7 @@ export function LaunchModal() {
       const response = await api.put(`production/barcode/release/${barcode}`, {
         employee_id: employeeId,
       });
-      console.log(products[0].id);
+      setLaunched(launched + 1);
 
       if (products[0].id === undefined) {
         setProducts([response.data.product]);
@@ -146,17 +151,28 @@ export function LaunchModal() {
               label="Digite o código (apenas numero):"
               labelAlign={'left'}
             >
-              <Input placeholder="placeholder" size="large" />
+              <Input
+                placeholder="placeholder"
+                value={barcode}
+                onChange={(e) => setBarcode(e.target.value)}
+                size="large"
+              />
             </Form.Item>
           </Col>
         </Row>
-        <Row>
-          <Col span={24}>
-            <button className={styles.launchButton}>
-              <FiCheck />
-            </button>
-          </Col>
-        </Row>
+        {barcode != '' && (
+          <Row>
+            <Col span={24}>
+              <button
+                className={styles.launchButton}
+                onClick={(e) => launchBarcode(barcode)}
+              >
+                <FiCheck />
+              </button>
+            </Col>
+          </Row>
+        )}
+        <h1 className={styles.launchedNumber}>{launched}</h1>
         <Row>
           <section className={styles.table}>
             <h2>Produtos bipados</h2>

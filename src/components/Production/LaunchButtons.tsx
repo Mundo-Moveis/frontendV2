@@ -1,7 +1,9 @@
 import { GetStaticProps } from 'next';
 import { useContext } from 'react';
 import { LaunchContext } from '../../context/Production/LaunchContext';
-import styles from '../../pages/production/productionLaunch.module.scss';
+import styles from '../../styles/Components/Production/ButtonsLaunch.module.scss';
+
+import { AiOutlineBarcode, AiOutlineUndo, AiOutlineTool } from 'react-icons/ai';
 
 export default function LaunchButtons() {
   const { launchModalToggle } = useContext(LaunchContext);
@@ -12,20 +14,20 @@ export default function LaunchButtons() {
         className={styles.launch}
         onClick={(e) => launchModalToggle(false)}
       >
-        Lançamento
+        <AiOutlineBarcode />
       </button>
       <button
         type="button"
         className={styles.groupedLaunch}
         onClick={(e) => launchModalToggle(true)}
       >
-        Lançamento Agrupado
+        <AiOutlineBarcode />
       </button>
       <button type="button" className={styles.defect}>
-        Defeito
+        <AiOutlineTool />
       </button>
       <button type="button" className={styles.reversal}>
-        Estorno
+        <AiOutlineUndo />
       </button>
     </div>
   );

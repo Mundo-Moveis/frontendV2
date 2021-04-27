@@ -1,3 +1,8 @@
+.launchedNumber {
+  text-align: center;
+  color: var(--red-mm);
+}
+
 .table {
   padding-bottom: 2rem;
   max-height: 18rem;
@@ -40,6 +45,7 @@
     }
   }
 }
+
 .launchButton {
   background: #13a54b;
   width: 100%;

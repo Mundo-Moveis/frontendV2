@@ -11,6 +11,8 @@ interface ILaunchContext {
   setEmployees: (employees: IEmployee[]) => void;
   employees: IEmployee[];
   saveEmployeeIdAfterSave: boolean;
+  launched: number;
+  setLaunched: (param: number) => void;
 }
 
 interface IEmployee {
@@ -27,6 +29,8 @@ export function LaunchContextProvider({
   const [employees, setEmployees] = useState([{} as IEmployee]);
   const [saveEmployeeIdAfterSave, setSaveEmployeeIdAfterSave] = useState(false);
 
+  const [launched, setLaunched] = useState(0);
+
   function launchModalToggle(saveEmployee: boolean) {
     setIsLaunchModalOpen(!isLaunchModalOpen);
     setSaveEmployeeIdAfterSave(saveEmployee);
@@ -39,6 +43,8 @@ export function LaunchContextProvider({
         setEmployees,
         employees,
         saveEmployeeIdAfterSave,
+        launched,
+        setLaunched,
       }}
     >
       {children}
