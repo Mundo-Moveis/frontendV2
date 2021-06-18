@@ -1,0 +1,33 @@
+@import url('https://fonts.googleapis.com/css2?family=Staatliches&display=swap');
+
+.logo {
+  height: 45px;
+  margin: 10px;
+  border: 1px solid #fff;
+  border-radius: 8px;
+  p {
+    display: fl;
+    text-align: center;
+    color: #fff;
+    font-family: Roboto, cursive;
+    text-align: center;
+    justify-content: center;
+    justify-items: center;
+    justify-self: center;
+
+    font-size: 1.2rem;
+    // text-shadow: black 3px 5px;
+  }
+}
+
+.site-layout .site-layout-background {
+  background: #fff;
+}
+
+[data-theme='dark'] .site-layout .site-layout-background {
+  background: #141414;
+}
+
+.sideBar {
+  height: 100%;
+}

@@ -11,7 +11,6 @@ export function Header() {
     <>
       <head className={styles.headerContainer}>
         <img src="/logo.png" alt="teste" />
-        <p>Mundo moveis</p>
         <span>{currentDate}</span>
       </head>
     </>

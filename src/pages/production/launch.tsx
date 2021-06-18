@@ -32,7 +32,7 @@ export const getStaticProps: GetStaticProps = async (ctx) => {
   const TWENTY_FOUR_HOURS = 2;
   const { data } = await api.get('employees');
   console.log(data);
-  
+
   const { employees }: IEmployeeRequest = data;
 
   return {
