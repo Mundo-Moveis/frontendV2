@@ -24,7 +24,7 @@ import {
 
 import Link from 'next/link';
 
-import { Layout, Menu } from 'antd';
+import { Layout, Menu, Result, Button } from 'antd';
 import { Header } from '../Header';
 import { FaCouch, FaWarehouse } from 'react-icons/fa';
 import { FaTshirt } from 'react-icons/fa';
@@ -137,7 +137,7 @@ export default function Sidebar({ screen, display }: SidebarProps) {
                   </Menu.Item>
 
                   <Menu.Item key="15" icon={<RightSquareOutlined />}>
-                    <Link href="/wmsRawUnMeasure">Un. Medidas</Link>
+                    <Link href="/Warehouse/unityMeasure">Un. Medidas</Link>
                   </Menu.Item>
 
                   <Menu.Item key="13" icon={<RightSquareOutlined />}>
@@ -318,7 +318,7 @@ export default function Sidebar({ screen, display }: SidebarProps) {
                     <Link href="/factory/function">Função </Link>
                   </Menu.Item>
                   <Menu.Item key="30" icon={<RightSquareOutlined />}>
-                    <Link href="/employee">Funcionário </Link>
+                    <Link href="/RH/Employee">Funcionário </Link>
                   </Menu.Item>
                 </SubMenu>
 
@@ -521,9 +521,21 @@ export default function Sidebar({ screen, display }: SidebarProps) {
 
           <Layout>
             <Header />
-            <Content style={{ margin: '20px 16px 0' }}>
-              <div>{screen}</div>
-            </Content>
+            {screen && (
+              <Content style={{ margin: '20px 16px 0' }}>
+                <div>{screen}</div>
+              </Content>
+            )}
+            {!screen && (
+              <Content style={{ margin: '20px 16px 0' }}>
+                <Result
+                  status="500"
+                  title="500"
+                  subTitle="Sorry, something went wrong."
+                  extra={<Button type="primary">Back Home</Button>}
+                />
+              </Content>
+            )}
           </Layout>
         </Layout>
       ) : (
