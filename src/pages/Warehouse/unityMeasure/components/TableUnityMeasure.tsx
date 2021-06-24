@@ -25,7 +25,7 @@ import {
 } from '@ant-design/icons';
 import Highlighter from 'react-highlight-words';
 import { SearchOutlined } from '@ant-design/icons';
-s;
+
 export default function TableUnityMeasure({ data }) {
   class SearchTable extends React.Component {
     state = {
@@ -126,6 +126,8 @@ export default function TableUnityMeasure({ data }) {
           key: 'name',
           width: '30%',
           ...this.getColumnSearchProps('name'),
+          sorter: (a, b) => a.address.length - b.address.length,
+          sortDirections: ['descend', 'ascend'],
         },
         {
           title: 'Age',
@@ -133,6 +135,8 @@ export default function TableUnityMeasure({ data }) {
           key: 'age',
           width: '20%',
           ...this.getColumnSearchProps('age'),
+          sorter: (a, b) => a.address.length - b.address.length,
+          sortDirections: ['descend', 'ascend'],
         },
         {
           title: 'Address',
@@ -143,6 +147,7 @@ export default function TableUnityMeasure({ data }) {
           sortDirections: ['descend', 'ascend'],
         },
         {
+          title: 'Operação',
           render: (text, record) => {
             return (
               <React.Fragment>
