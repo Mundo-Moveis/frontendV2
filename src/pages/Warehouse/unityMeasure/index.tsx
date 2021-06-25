@@ -1,71 +1,56 @@
-import {
-  DeleteFilled, EditOutlined, DeleteOutlined, PlusOutlined, SearchOutlined
-} from '@ant-design/icons';
+import { DeleteFilled, EditFilled, PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import { Button, Col, Form, Input, Layout, Modal, Popconfirm, Row, Select, Space, Table } from 'antd';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import Highlighter from 'react-highlight-words';
-import { api } from '../../../services/api';
 import styles from './styles/style.module.scss';
+
 import { Notification } from '../../../components/Notification';
+import { api } from '../../../services/api';
+import { GetServerSideProps } from 'next';
 
 const { Option } = Select;
 
-interface IUnitMeasurement {
-  id: string
-  abbreviation: string
-  name: string
-}
-export default function index() {
+export default function index({ itens }) {
+  console.log(itens);
+
+  const data = itens
+
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [unitsMeasurement, setUnitMeasurement] = useState([{}])
-  const [loading, setLoading] = useState(false);
   const [id, setId] = useState('');
   const [name, setName] = useState('');
   const [abbreviation, setAbbreviation] = useState('');
+  const [active, setActive] = useState(0);
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    api.get('/warehouse/unit-measurement').then((response) => {
-      setUnitMeasurement(response.data)
-    })
-  })
-  function modalState(data?: IUnitMeasurement) {
+  function modalState(data?: any) {
     console.log(data);
 
-    setName(data.name)
-    setAbbreviation(data.abbreviation)
-    setId(data.id)
     setIsModalOpen(!isModalOpen);
   }
 
   async function handleRegister(e) {
     e.preventDefault();
 
-
-    if (id) {
-      try {
-
-      } catch (error) { }
-    } else {
-      try {
-        const data = {
-          name: name,
-          abbreviation: abbreviation,
-          active: active,
-        };
-        setLoading(true);
-        await api.post('/warehouse/unit-measurement', data);
-        setLoading(false);
-        Notification({
-          type: 'success',
-          title: 'Enviado',
-          description: 'Usuário Cadastrado com sucesso',
-        });
-      } catch (error) {
-
+    try {
+      if (id) {
+        try {
+          const data = {
+            name: name,
+            abbreviation: abbreviation,
+            active: active,
+          };
+          setLoading(true);
+          await api.post('/warehouse/unit-measurement', data);
+          setLoading(false);
+          Notification({
+            type: 'success',
+            title: 'Enviado',
+            description: 'Usuário Cadastrado com sucesso',
+          });
+        } catch (error) { }
       }
-    }
-
-
+    } catch (error) { }
+    console.log(data);
   }
 
   class SearchTable extends React.Component {
@@ -201,9 +186,9 @@ export default function index() {
 
             return (
               <React.Fragment>
-                <EditOutlined
+                <EditFilled
                   style={{ cursor: 'pointer', fontSize: '16px' }}
-                  onClick={() => modalState()}
+                  onClick={() => modalState(record)}
                 />
                 {/* onClick={() => handleEdit(record)} */}
                 <Popconfirm title="Confirmar remoção?">
@@ -221,13 +206,11 @@ export default function index() {
       return (
         <>
 
-          <Table columns={columns} dataSource={unitsMeasurement} />
+          <Table columns={columns} dataSource={data} />
         </>
       );
     }
   }
-
-
   return (
     <div>
       <Layout>
@@ -286,7 +269,6 @@ export default function index() {
             size="large"
             style={{ width: 400, marginBottom: '10px' }}
             placeholder="Descrição da unidade, ex: Litro, Metros Quadrados, ..."
-            value={name}
             onChange={(e) => {
               setName(e.target.value);
             }}
@@ -299,21 +281,62 @@ export default function index() {
           labelAlign={'left'}
           style={{ backgroundColor: 'white', fontWeight: 'bold' }}
           required
-
         >
           <Input
             size="large"
             style={{ width: 400, marginBottom: '10px' }}
             placeholder="Digite a Abreviação, ex: L, M²"
-            value={abbreviation}
             onChange={(e) => {
               setAbbreviation(e.target.value);
             }}
           />
         </Form.Item>
 
-
+        <Form.Item
+          labelCol={{ span: 23 }}
+          label="Ativo:"
+          labelAlign={'left'}
+          style={{ backgroundColor: 'white', fontWeight: 'bold' }}
+          required
+        >
+          <Select
+            onChange={(e) => {
+              setActive(Number(e));
+            }}
+            size="large"
+            style={{ width: 400 }}
+          >
+            <Option value={1}>Sim</Option>
+            <Option value={0}>Não</Option>
+          </Select>
+        </Form.Item>
       </Modal>
     </div>
+
+
   );
 }
+
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+
+
+  try {
+    const { data } = await api.get('warehouse/unit-measurement', {
+
+    });
+
+    return {
+      props: {
+        itens: data,
+      },
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      props: {
+        itens: [{ id: '', name: '', created: '' }],
+      },
+    };
+  }
+};
