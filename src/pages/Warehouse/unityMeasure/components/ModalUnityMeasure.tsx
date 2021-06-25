@@ -1,17 +1,55 @@
-import { Button, Form, Input, Modal, Select } from 'antd';
 import React, { useEffect, useState } from 'react';
+
+import { Button, Form, Input, Modal, Select } from 'antd';
+
+import { Notification } from '../../../../components/Notification';
+import { api } from '../../../../services/api';
 
 const { Option } = Select;
 
 interface IProps {
   modalVisible: boolean;
   modalState: () => void;
+  dataForEdit: Object;
 }
 
-function ModalUnityMeasure({ modalVisible, modalState }: IProps) {
+export function ModalUnityMeasure({
+  modalVisible,
+  modalState,
+  dataForEdit,
+}: IProps) {
+  const [id, setId] = useState(0);
   const [name, setName] = useState('');
   const [abbreviation, setAbbreviation] = useState('');
-  const [active, setActive] = useState('');
+  const [active, setActive] = useState(0);
+  const [loading, setLoading] = useState(false);
+
+  console.log(dataForEdit);
+
+  async function handleRegister(e) {
+    e.preventDefault();
+
+    try {
+      if (id === 0) {
+        try {
+          const data = {
+            name: name,
+            abbreviation: abbreviation,
+            active: active,
+          };
+          setLoading(true);
+          await api.post('/warehouse/unit-measurement', data);
+          setLoading(false);
+          Notification({
+            type: 'success',
+            title: 'Enviado',
+            description: 'Usuário Cadastrado com sucesso',
+          });
+        } catch (error) {}
+      }
+    } catch (error) {}
+    console.log(data);
+  }
 
   const data = {};
   return (
@@ -32,7 +70,12 @@ function ModalUnityMeasure({ modalVisible, modalState }: IProps) {
           {' '}
           Cancelar
         </Button>,
-        <Button key="submit" type="primary">
+        <Button
+          key="submit"
+          type="primary"
+          loading={loading}
+          onClick={handleRegister}
+        >
           {' '}
           Salvar
         </Button>,
@@ -66,6 +109,9 @@ function ModalUnityMeasure({ modalVisible, modalState }: IProps) {
           size="large"
           style={{ width: 400, marginBottom: '10px' }}
           placeholder="Digite a Abreviação, ex: L, M²"
+          onChange={(e) => {
+            setAbbreviation(e.target.value);
+          }}
         />
       </Form.Item>
 
@@ -76,7 +122,13 @@ function ModalUnityMeasure({ modalVisible, modalState }: IProps) {
         style={{ backgroundColor: 'white', fontWeight: 'bold' }}
         required
       >
-        <Select size="large" style={{ width: 400 }}>
+        <Select
+          onChange={(e) => {
+            setActive(Number(e));
+          }}
+          size="large"
+          style={{ width: 400 }}
+        >
           <Option value={1}>Sim</Option>
           <Option value={0}>Não</Option>
         </Select>

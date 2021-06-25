@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import {
   Layout,
@@ -19,14 +19,21 @@ import {
 } from 'antd';
 import {
   DeleteOutlined,
-  EditOutlined,
+  EditFilled,
   PlusOutlined,
+  DeleteFilled,
   DownloadOutlined,
 } from '@ant-design/icons';
 import Highlighter from 'react-highlight-words';
 import { SearchOutlined } from '@ant-design/icons';
+import { ModalUnityMeasure } from './ModalUnityMeasure';
 
 export default function TableUnityMeasure({ data }) {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [dataForEdit, setDataForEdit] = useState({});
+  function modalState() {
+    setIsModalOpen(!isModalOpen);
+  }
   class SearchTable extends React.Component {
     state = {
       searchText: '',
@@ -123,39 +130,53 @@ export default function TableUnityMeasure({ data }) {
         {
           title: 'ID',
           dataIndex: 'id',
+          key: 'id',
+          width: '10%',
+          ...this.getColumnSearchProps('id'),
+          sorter: (a, b) => a.id.length - b.id.length,
+          sortDirections: ['descend', 'ascend'],
+        },
+        {
+          title: 'Descrição',
+          dataIndex: 'name',
           key: 'name',
-          width: '30%',
-          ...this.getColumnSearchProps('name'),
-          sorter: (a, b) => a.address.length - b.address.length,
-          sortDirections: ['descend', 'ascend'],
-        },
-        {
-          title: 'Age',
-          dataIndex: 'age',
-          key: 'age',
           width: '20%',
-          ...this.getColumnSearchProps('age'),
-          sorter: (a, b) => a.address.length - b.address.length,
+          ...this.getColumnSearchProps('name'),
+          sorter: (a, b) => a.name.length - b.name.length,
           sortDirections: ['descend', 'ascend'],
         },
         {
-          title: 'Address',
-          dataIndex: 'address',
-          key: 'address',
-          ...this.getColumnSearchProps('address'),
-          sorter: (a, b) => a.address.length - b.address.length,
+          title: 'Unidade',
+          dataIndex: 'abbreviation',
+          key: 'abbreviation',
+          ...this.getColumnSearchProps('abbreviation'),
+          sorter: (a, b) => a.abbreviation.length - b.abbreviation.length,
+          sortDirections: ['descend', 'ascend'],
+        },
+        {
+          title: 'Ativo',
+          dataIndex: 'active',
+          key: 'active',
+          ...this.getColumnSearchProps('active'),
+          sorter: (a, b) => a.active.length - b.active.length,
           sortDirections: ['descend', 'ascend'],
         },
         {
           title: 'Operação',
-          render: (text, record) => {
+          render: (record) => {
+            setDataForEdit(record);
             return (
               <React.Fragment>
-                <EditOutlined style={{ cursor: 'pointer' }} />
+                <EditFilled
+                  style={{ cursor: 'pointer', fontSize: '16px' }}
+                  onClick={() => modalState()}
+                />
                 {/* onClick={() => handleEdit(record)} */}
                 <Popconfirm title="Confirmar remoção?">
                   <a href="#" style={{ marginLeft: 20 }}>
-                    <DeleteOutlined style={{ color: '#ff0000' }} />
+                    <DeleteFilled
+                      style={{ color: '#ff0000', fontSize: '16px' }}
+                    />
                   </a>
                 </Popconfirm>
               </React.Fragment>
@@ -163,9 +184,19 @@ export default function TableUnityMeasure({ data }) {
           },
         },
       ];
-      return <Table columns={columns} dataSource={data} />;
+      return (
+        <>
+          <ModalUnityMeasure
+            modalVisible={isModalOpen}
+            modalState={modalState}
+            dataForEdit={dataForEdit}
+          />
+          <Table columns={columns} dataSource={data} />
+        </>
+      );
     }
   }
+
   return (
     <>
       <SearchTable />
