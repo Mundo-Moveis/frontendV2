@@ -10,18 +10,16 @@ import ModalUnityMeasure from './components/ModalUnityMeasure';
 export default function index() {
   const data = [
     {
-      key: '4',
       id: 1,
       name: 'Jim Red',
-      age: 32,
-      address: 'London No. 2 Lake Park',
+      abbreviation: 32,
+      active: 1,
     },
     {
-      key: '5',
       id: 2,
       name: 'Kiriku',
-      age: 21,
-      address: 'Pont que Partiw. 2 Venezuela',
+      abbreviation: 21,
+      active: 0,
     },
   ];
 
