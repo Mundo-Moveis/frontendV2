@@ -10,47 +10,92 @@ import { GetServerSideProps } from 'next';
 
 const { Option } = Select;
 
-export default function index({ itens }) {
-  console.log(itens);
+interface UnitMeasurement {
+  id: string,
+  name: string,
+  abbreviation: string,
+  created_at: string,
+  active: boolean,
+  user_id: string,
+  updated_at: string
+}
+interface props {
+  itens: UnitMeasurement[]
+}
 
-  const data = itens
+
+
+export default function index({ itens }: props) {
+
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [id, setId] = useState('');
   const [name, setName] = useState('');
   const [abbreviation, setAbbreviation] = useState('');
-  const [active, setActive] = useState(0);
+
   const [loading, setLoading] = useState(false);
 
-  function modalState(data?: any) {
-    console.log(data);
+  function modalState() {
+
 
     setIsModalOpen(!isModalOpen);
+  }
+
+  function handleEdit(data: UnitMeasurement) {
+    setName(data.name)
+    setId(data.id)
+    setAbbreviation(data.abbreviation)
+    modalState()
   }
 
   async function handleRegister(e) {
     e.preventDefault();
 
-    try {
-      if (id) {
-        try {
-          const data = {
-            name: name,
-            abbreviation: abbreviation,
-            active: active,
-          };
-          setLoading(true);
-          await api.post('/warehouse/unit-measurement', data);
-          setLoading(false);
-          Notification({
-            type: 'success',
-            title: 'Enviado',
-            description: 'Usuário Cadastrado com sucesso',
-          });
-        } catch (error) { }
-      }
-    } catch (error) { }
-    console.log(data);
+
+    if (id) {
+      try {
+        //   const data = {
+        //     name: name,
+        //     abbreviation: abbreviation,
+
+        //   };
+        //   setLoading(true);
+        //   await api.put('/warehouse/unit-measurement', data);
+        //   setLoading(false);
+        //   Notification({
+        //     type: 'success',
+        //     title: 'Enviado',
+        //     description: 'Usuário Cadastrado com sucesso',
+        //   });
+        console.log('edit');
+
+      } catch (error) { }
+    } else {
+      try {
+        //   const data = {
+        //     name: name,
+        //     abbreviation: abbreviation,
+
+        //   };
+        //   setLoading(true);
+        //   await api.post('/warehouse/unit-measurement', data);
+        //   setLoading(false);
+        //   Notification({
+        //     type: 'success',
+        //     title: 'Enviado',
+        //     description: 'Usuário Cadastrado com sucesso',
+        //   });
+        console.log('create');
+
+
+      } catch (error) { }
+
+    }
+    setName('')
+    setId('')
+    setAbbreviation('')
+
+
   }
 
   class SearchTable extends React.Component {
@@ -153,7 +198,7 @@ export default function index({ itens }) {
           width: '10%',
           ...this.getColumnSearchProps('id'),
           sorter: (a, b) => a.id.length - b.id.length,
-          sortDirections: ['descend', 'ascend'],
+
         },
         {
           title: 'Descrição',
@@ -162,7 +207,7 @@ export default function index({ itens }) {
           width: '20%',
           ...this.getColumnSearchProps('name'),
           sorter: (a, b) => a.name.length - b.name.length,
-          sortDirections: ['descend', 'ascend'],
+
         },
         {
           title: 'Unidade',
@@ -170,7 +215,7 @@ export default function index({ itens }) {
           key: 'abbreviation',
           ...this.getColumnSearchProps('abbreviation'),
           sorter: (a, b) => a.abbreviation.length - b.abbreviation.length,
-          sortDirections: ['descend', 'ascend'],
+
         },
         {
           title: 'Ativo',
@@ -178,17 +223,18 @@ export default function index({ itens }) {
           key: 'active',
           ...this.getColumnSearchProps('active'),
           sorter: (a, b) => a.active.length - b.active.length,
-          sortDirections: ['descend', 'ascend'],
+
         },
         {
           title: 'Operação',
+          key: 'aaa',
           render: (record) => {
 
             return (
-              <React.Fragment>
+              <>
                 <EditFilled
                   style={{ cursor: 'pointer', fontSize: '16px' }}
-                  onClick={() => modalState(record)}
+                  onClick={() => handleEdit(record)}
                 />
                 {/* onClick={() => handleEdit(record)} */}
                 <Popconfirm title="Confirmar remoção?">
@@ -198,7 +244,7 @@ export default function index({ itens }) {
                     />
                   </a>
                 </Popconfirm>
-              </React.Fragment>
+              </>
             );
           },
         },
@@ -206,7 +252,7 @@ export default function index({ itens }) {
       return (
         <>
 
-          <Table columns={columns} dataSource={data} />
+          <Table columns={columns} dataSource={itens} />
         </>
       );
     }
@@ -269,6 +315,7 @@ export default function index({ itens }) {
             size="large"
             style={{ width: 400, marginBottom: '10px' }}
             placeholder="Descrição da unidade, ex: Litro, Metros Quadrados, ..."
+            value={name}
             onChange={(e) => {
               setName(e.target.value);
             }}
@@ -281,35 +328,20 @@ export default function index({ itens }) {
           labelAlign={'left'}
           style={{ backgroundColor: 'white', fontWeight: 'bold' }}
           required
+
         >
           <Input
             size="large"
             style={{ width: 400, marginBottom: '10px' }}
             placeholder="Digite a Abreviação, ex: L, M²"
+            value={abbreviation}
             onChange={(e) => {
               setAbbreviation(e.target.value);
             }}
           />
         </Form.Item>
 
-        <Form.Item
-          labelCol={{ span: 23 }}
-          label="Ativo:"
-          labelAlign={'left'}
-          style={{ backgroundColor: 'white', fontWeight: 'bold' }}
-          required
-        >
-          <Select
-            onChange={(e) => {
-              setActive(Number(e));
-            }}
-            size="large"
-            style={{ width: 400 }}
-          >
-            <Option value={1}>Sim</Option>
-            <Option value={0}>Não</Option>
-          </Select>
-        </Form.Item>
+
       </Modal>
     </div>
 
