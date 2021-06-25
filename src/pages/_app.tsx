@@ -7,18 +7,18 @@ import { SideBarProvider } from '../context/SideBarContext';
 import styles from '../styles/app.module.scss';
 import '../styles/global.scss';
 
-import { LaunchContextProvider } from '../context/Production/LaunchContext';
+
 
 function MyApp({ Component, pageProps }) {
   return (
     <>
       <div className={styles.wrapper}>
         <main>
-          <LaunchContextProvider>
-            <SideBarProvider>
-              <Component {...pageProps} />
-            </SideBarProvider>
-          </LaunchContextProvider>
+
+          <SideBarProvider>
+            <Component {...pageProps} />
+          </SideBarProvider>
+
         </main>
       </div>
     </>
