@@ -1,6 +1,23 @@
-import { DeleteFilled, EditFilled, PlusOutlined, SearchOutlined } from '@ant-design/icons';
-import { Button, Col, Form, Input, Layout, Modal, Popconfirm, Row, Select, Space, Table } from 'antd';
-import React, { useState } from 'react';
+import {
+  DeleteFilled,
+  EditFilled,
+  PlusOutlined,
+  SearchOutlined,
+} from '@ant-design/icons';
+import {
+  Button,
+  Col,
+  Form,
+  Input,
+  Layout,
+  Modal,
+  Popconfirm,
+  Row,
+  Select,
+  Space,
+  Table,
+} from 'antd';
+import React, { FormEvent, useState } from 'react';
 import Highlighter from 'react-highlight-words';
 import styles from './styles/style.module.scss';
 
@@ -11,23 +28,20 @@ import { GetServerSideProps } from 'next';
 const { Option } = Select;
 
 interface UnitMeasurement {
-  id: string,
-  name: string,
-  abbreviation: string,
-  created_at: string,
-  active: boolean,
-  user_id: string,
-  updated_at: string
+  id: string;
+  name: string;
+  abbreviation: string;
+  created_at: string;
+  active: boolean;
+  user_id: string;
+  updated_at: string;
 }
 interface props {
-  itens: UnitMeasurement[]
+  itens: UnitMeasurement[];
 }
 
-
-
 export default function index({ itens }: props) {
-
-
+  const [unitsMeasurements, setUnitsMeasurements] = useState(itens);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [id, setId] = useState('');
   const [name, setName] = useState('');
@@ -35,67 +49,109 @@ export default function index({ itens }: props) {
 
   const [loading, setLoading] = useState(false);
 
-  function modalState() {
-
-
-    setIsModalOpen(!isModalOpen);
-  }
-
   function handleEdit(data: UnitMeasurement) {
-    setName(data.name)
-    setId(data.id)
-    setAbbreviation(data.abbreviation)
-    modalState()
+    setName(data.name);
+    setId(data.id);
+    setAbbreviation(data.abbreviation);
+    setIsModalOpen(true);
   }
 
-  async function handleRegister(e) {
+  function handleClose() {
+    setId('');
+    setName('');
+    setAbbreviation('');
+    setIsModalOpen(false);
+  }
+
+  async function handleRegister(e: FormEvent) {
     e.preventDefault();
 
+    console.log('Cai aqui');
 
     if (id) {
       try {
-        //   const data = {
-        //     name: name,
-        //     abbreviation: abbreviation,
-
-        //   };
-        //   setLoading(true);
-        //   await api.put('/warehouse/unit-measurement', data);
-        //   setLoading(false);
-        //   Notification({
-        //     type: 'success',
-        //     title: 'Enviado',
-        //     description: 'Usuário Cadastrado com sucesso',
-        //   });
+        const data = {
+          id: id,
+          name: name,
+          abbreviation: abbreviation,
+        };
+        setLoading(true);
+        await api.put('/warehouse/unit-measurement', data);
+        setLoading(false);
+        Notification({
+          type: 'success',
+          title: 'Enviado',
+          description: 'Unidade Editada com sucesso',
+        });
         console.log('edit');
-
-      } catch (error) { }
+      } catch (error) {
+        console.error(error);
+        Notification({
+          type: 'error',
+          title: 'Erro',
+          description: 'Não foi possível Editar a unidade',
+        });
+        setLoading(false);
+      }
     } else {
       try {
-        //   const data = {
-        //     name: name,
-        //     abbreviation: abbreviation,
+        const data = {
+          name: name,
+          abbreviation: abbreviation,
+        };
+        setLoading(true);
+        const response = await api.post('/warehouse/unit-measurement', data);
+        setLoading(false);
+        Notification({
+          type: 'success',
+          title: 'Enviado',
+          description: 'Unidade Cadastrada com sucesso',
+        });
 
-        //   };
-        //   setLoading(true);
-        //   await api.post('/warehouse/unit-measurement', data);
-        //   setLoading(false);
-        //   Notification({
-        //     type: 'success',
-        //     title: 'Enviado',
-        //     description: 'Usuário Cadastrado com sucesso',
-        //   });
+        const newUnityRegistered = response.data;
+
+        itens.push(newUnityRegistered);
+        setIsModalOpen(false);
         console.log('create');
-
-
-      } catch (error) { }
-
+      } catch (error) {
+        console.error(error);
+        Notification({
+          type: 'error',
+          title: 'Erro',
+          description: 'Não foi possível cadastrar a unidade',
+        });
+        setLoading(false);
+      }
     }
-    setName('')
-    setId('')
-    setAbbreviation('')
+    setName('');
+    setId('');
+    setAbbreviation('');
+  }
 
+  async function handleDelete(id: string) {
+    try {
+      await api.delete(`/warehouse/unit-measurement/${id}`);
 
+      const filterUnitsMeasurement = unitsMeasurements.filter((iten) => {
+        if (iten.id !== id) {
+          return iten;
+        }
+      });
+
+      setUnitsMeasurements(filterUnitsMeasurement);
+      Notification({
+        type: 'success',
+        title: 'Sucesso',
+        description: 'Unidade Deletada com sucesso',
+      });
+    } catch (error) {
+      console.error(error);
+      Notification({
+        type: 'error',
+        title: 'Erro',
+        description: 'Não foi possível Deletar a unidade',
+      });
+    }
   }
 
   class SearchTable extends React.Component {
@@ -154,9 +210,9 @@ export default function index({ itens }: props) {
       onFilter: (value, record) =>
         record[dataIndex]
           ? record[dataIndex]
-            .toString()
-            .toLowerCase()
-            .includes(value.toLowerCase())
+              .toString()
+              .toLowerCase()
+              .includes(value.toLowerCase())
           : '',
       onFilterDropdownVisibleChange: (visible) => {
         if (visible) {
@@ -192,44 +248,25 @@ export default function index({ itens }: props) {
     render() {
       const columns = [
         {
-          title: 'ID',
-          dataIndex: 'id',
-          key: 'id',
-          width: '10%',
-          ...this.getColumnSearchProps('id'),
-          sorter: (a, b) => a.id.length - b.id.length,
-
-        },
-        {
           title: 'Descrição',
           dataIndex: 'name',
           key: 'name',
           width: '20%',
           ...this.getColumnSearchProps('name'),
           sorter: (a, b) => a.name.length - b.name.length,
-
         },
         {
           title: 'Unidade',
           dataIndex: 'abbreviation',
+
           key: 'abbreviation',
           ...this.getColumnSearchProps('abbreviation'),
           sorter: (a, b) => a.abbreviation.length - b.abbreviation.length,
-
-        },
-        {
-          title: 'Ativo',
-          dataIndex: 'active',
-          key: 'active',
-          ...this.getColumnSearchProps('active'),
-          sorter: (a, b) => a.active.length - b.active.length,
-
         },
         {
           title: 'Operação',
           key: 'aaa',
           render: (record) => {
-
             return (
               <>
                 <EditFilled
@@ -237,7 +274,10 @@ export default function index({ itens }: props) {
                   onClick={() => handleEdit(record)}
                 />
                 {/* onClick={() => handleEdit(record)} */}
-                <Popconfirm title="Confirmar remoção?">
+                <Popconfirm
+                  title="Confirmar remoção?"
+                  onConfirm={() => handleDelete(record.id)}
+                >
                   <a href="#" style={{ marginLeft: 20 }}>
                     <DeleteFilled
                       style={{ color: '#ff0000', fontSize: '16px' }}
@@ -251,8 +291,7 @@ export default function index({ itens }: props) {
       ];
       return (
         <>
-
-          <Table columns={columns} dataSource={itens} />
+          <Table columns={columns} dataSource={unitsMeasurements} />
         </>
       );
     }
@@ -266,9 +305,7 @@ export default function index({ itens }: props) {
               size={'large'}
               className={styles.button}
               icon={<PlusOutlined style={{ fontSize: '16px' }} />}
-              onClick={() => {
-                modalState();
-              }}
+              onClick={() => setIsModalOpen(true)}
             >
               Cadastrar Unidade
             </Button>
@@ -279,18 +316,9 @@ export default function index({ itens }: props) {
       <Modal
         title="Cadastro de Unidade de Medida"
         visible={isModalOpen}
-        onCancel={() => {
-          modalState();
-        }}
+        onCancel={handleClose}
         footer={[
-          <Button
-            key="back"
-            onClick={() => {
-              modalState();
-            }}
-            type="default"
-          >
-            {' '}
+          <Button key="back" onClick={handleClose} type="default">
             Cancelar
           </Button>,
           <Button
@@ -299,7 +327,6 @@ export default function index({ itens }: props) {
             loading={loading}
             onClick={handleRegister}
           >
-            {' '}
             Salvar
           </Button>,
         ]}
@@ -312,6 +339,7 @@ export default function index({ itens }: props) {
           required
         >
           <Input
+            key="descriptionName"
             size="large"
             style={{ width: 400, marginBottom: '10px' }}
             placeholder="Descrição da unidade, ex: Litro, Metros Quadrados, ..."
@@ -328,9 +356,9 @@ export default function index({ itens }: props) {
           labelAlign={'left'}
           style={{ backgroundColor: 'white', fontWeight: 'bold' }}
           required
-
         >
           <Input
+            key="abbreviation"
             size="large"
             style={{ width: 400, marginBottom: '10px' }}
             placeholder="Digite a Abreviação, ex: L, M²"
@@ -340,23 +368,15 @@ export default function index({ itens }: props) {
             }}
           />
         </Form.Item>
-
-
       </Modal>
     </div>
-
-
   );
 }
 
-
 export const getServerSideProps: GetServerSideProps = async (context) => {
-
-
   try {
-    const { data } = await api.get('warehouse/unit-measurement', {
-
-    });
+    const { data } = await api.get('/warehouse/unit-measurement');
+    console.log('aaaaa: ', data);
 
     return {
       props: {
