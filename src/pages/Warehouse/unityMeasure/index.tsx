@@ -1,9 +1,10 @@
 import {
-  DeleteFilled,
+  DeleteOutlined,
   EditFilled,
   PlusOutlined,
   SearchOutlined,
 } from '@ant-design/icons';
+import reqwest from 'reqwest';
 import {
   Button,
   Col,
@@ -68,13 +69,21 @@ export default function index({ itens }: props) {
 
     if (id) {
       try {
+        if (name === '' || abbreviation === '') {
+          setLoading(false);
+          return Notification({
+            type: 'error',
+            title: 'Erro',
+            description: 'Não foi possível editar a unidade',
+          });
+        }
         const data = {
           id: id,
           name: name,
           abbreviation: abbreviation,
         };
         setLoading(true);
-        await api.put('/warehouse/unit-measurement', data);
+        await api.put(`/warehouse/unit-measurement${id}`, data);
         setLoading(false);
         Notification({
           type: 'success',
@@ -93,6 +102,14 @@ export default function index({ itens }: props) {
       }
     } else {
       try {
+        if (name === '' || abbreviation === '') {
+          setLoading(false);
+          return Notification({
+            type: 'error',
+            title: 'Erro',
+            description: 'Não foi possível cadastrar a unidade',
+          });
+        }
         const data = {
           name: name,
           abbreviation: abbreviation,
@@ -152,10 +169,55 @@ export default function index({ itens }: props) {
     }
   }
 
+  const getRandomuserParams = (params) => ({
+    results: params.pagination.pageSize,
+    page: params.pagination.current,
+    ...params,
+  });
   class SearchTable extends React.Component {
     state = {
+      pagination: {
+        current: 1,
+        pageSize: 6,
+      },
       searchText: '',
       searchedColumn: '',
+    };
+
+    componentDidMount() {
+      const { pagination } = this.state;
+      this.fetch({ pagination });
+    }
+
+    handleTableChange = (pagination, filters, sorter) => {
+      this.fetch({
+        sortField: sorter.field,
+        sortOrder: sorter.order,
+        pagination,
+        ...filters,
+      });
+    };
+
+    fetch = (params = {}) => {
+      this.setState({ loading: true });
+      reqwest({
+        url: 'https://randomuser.me/api',
+        method: 'get',
+        type: 'json',
+        data: getRandomuserParams(params),
+      }).then((data) => {
+        console.log(data);
+        this.setState({
+          loading: false,
+          data: data.results,
+          pagination: {
+            ...params.pagination,
+            total: 200,
+            // 200 is mock data, you should read it from server
+            // total: data.totalCount,
+          },
+        });
+      });
     };
 
     getColumnSearchProps = (dataIndex) => ({
@@ -277,7 +339,7 @@ export default function index({ itens }: props) {
                   onConfirm={() => handleDelete(record.id)}
                 >
                   <a href="#" style={{ marginLeft: 20 }}>
-                    <DeleteFilled
+                    <DeleteOutlined
                       style={{ color: '#ff0000', fontSize: '16px' }}
                     />
                   </a>
@@ -287,9 +349,15 @@ export default function index({ itens }: props) {
           },
         },
       ];
+      const { pagination } = this.state;
       return (
         <>
-          <Table columns={columns} dataSource={unitsMeasurements} />
+          <Table
+            pagination={pagination}
+            columns={columns}
+            onChange={this.handleTableChange}
+            dataSource={unitsMeasurements}
+          />
         </>
       );
     }

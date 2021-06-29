@@ -1,5 +1,5 @@
 import {
-  DeleteFilled,
+  DeleteOutlined,
   EditFilled,
   PlusOutlined,
   SearchOutlined,
@@ -54,11 +54,116 @@ export default function categories({ categorie, notFound }: IProps) {
     setIsModalOpen(false);
   }
 
-  function handleRegister() {}
+  async function handleRegister(e) {
+    e.preventDefault();
 
-  function handleDelete(id: string) {}
+    if (id) {
+      try {
+        if (name === '') {
+          setLoading(false);
+          return Notification({
+            type: 'error',
+            title: 'Erro',
+            description: 'Não foi possível editar a categoria',
+          });
+        }
+        const data = {
+          id: id,
+          name: name,
+        };
+        setLoading(true);
+        await api.put(`/warehouse/categories${id}`, data);
+        setLoading(false);
+        Notification({
+          type: 'success',
+          title: 'Enviado',
+          description: 'Categoria Editada com sucesso',
+        });
+        console.log('edit');
+      } catch (error) {
+        console.error(error);
+        Notification({
+          type: 'error',
+          title: 'Erro',
+          description: 'Não foi possível Editar a Categoria',
+        });
+        setLoading(false);
+      }
+    } else {
+      try {
+        if (name === '') {
+          setLoading(false);
+          return Notification({
+            type: 'error',
+            title: 'Erro',
+            description: 'Não foi possível cadastrar a categoria',
+          });
+        }
 
-  function handleEdit(data: {}) {}
+        const data = {
+          name: name,
+        };
+
+        setLoading(true);
+        const response = await api.post('/warehouse/categories', data);
+        setLoading(false);
+
+        Notification({
+          type: 'success',
+          title: 'Enviado',
+          description: 'Categoria Cadastrada com sucesso',
+        });
+
+        const newCategorieRegistered = response.data;
+
+        categorie.push(newCategorieRegistered);
+        setIsModalOpen(false);
+      } catch (error) {
+        console.error(error);
+        Notification({
+          type: 'error',
+          title: 'Erro',
+          description: 'Não foi possível cadastrar a Categoria',
+        });
+        setLoading(false);
+      }
+    }
+    setName('');
+    setId('');
+  }
+
+  async function handleDelete(id: string) {
+    try {
+      await api.delete(`/warehouse/unit-measurement/${id}`);
+
+      const filterCategories = categories.filter((iten) => {
+        if (iten.id !== id) {
+          return iten;
+        }
+      });
+
+      setCategories(filterCategories);
+      Notification({
+        type: 'success',
+        title: 'Sucesso',
+        description: 'Unidade Deletada com sucesso',
+      });
+    } catch (error) {
+      console.error(error);
+      Notification({
+        type: 'error',
+        title: 'Erro',
+        description: 'Não foi possível Deletar a unidade',
+      });
+    }
+  }
+
+  function handleEdit(data: ICategorie) {
+    console.log(data);
+    setIsModalOpen(true);
+    setId(data.id);
+    setName(data.name);
+  }
 
   class SearchTable extends React.Component {
     state = {
@@ -187,7 +292,7 @@ export default function categories({ categorie, notFound }: IProps) {
                   onConfirm={() => handleDelete(record.id)}
                 >
                   <a href="#" style={{ marginLeft: 20 }}>
-                    <DeleteFilled
+                    <DeleteOutlined
                       style={{ color: '#ff0000', fontSize: '16px' }}
                     />
                   </a>
