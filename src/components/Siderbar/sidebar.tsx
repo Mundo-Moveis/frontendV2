@@ -51,7 +51,11 @@ export default function Sidebar({ screen, display }: SidebarProps) {
     <>
       {display ? (
         <Layout>
-          <Sider breakpoint="lg" collapsedWidth="0" style={{ height: '100vh' }}>
+          <Sider
+            breakpoint="lg"
+            collapsedWidth="0"
+            style={{ minHeight: '100vh' }}
+          >
             <Menu theme="dark" mode="inline" defaultSelectedKeys={['1']}>
               <Menu.Item key="1" icon={<DashboardOutlined />}>
                 <Link href="/profile">Dashboard</Link>
@@ -128,16 +132,15 @@ export default function Sidebar({ screen, display }: SidebarProps) {
                   title="Cadastros"
                   icon={<PlusOutlined />}
                 >
+                  <Menu.Item key="15" icon={<RightSquareOutlined />}>
+                    <Link href="/Warehouse/unityMeasure">Un. Medidas</Link>
+                  </Menu.Item>
                   <Menu.Item key="11" icon={<RightSquareOutlined />}>
-                    <Link href="/wmsRawWarehouse">Almoxarifados</Link>
+                    <Link href="/Warehouse/categories">Categoria</Link>
                   </Menu.Item>
 
                   <Menu.Item key="12" icon={<RightSquareOutlined />}>
                     <Link href="/wmsRawSupplier">Fornecedores</Link>
-                  </Menu.Item>
-
-                  <Menu.Item key="15" icon={<RightSquareOutlined />}>
-                    <Link href="/Warehouse/unityMeasure">Un. Medidas</Link>
                   </Menu.Item>
 
                   <Menu.Item key="13" icon={<RightSquareOutlined />}>

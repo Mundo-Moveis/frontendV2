@@ -7,18 +7,14 @@ import { SideBarProvider } from '../context/SideBarContext';
 import styles from '../styles/app.module.scss';
 import '../styles/global.scss';
 
-
-
 function MyApp({ Component, pageProps }) {
   return (
     <>
       <div className={styles.wrapper}>
         <main>
-
           <SideBarProvider>
             <Component {...pageProps} />
           </SideBarProvider>
-
         </main>
       </div>
     </>

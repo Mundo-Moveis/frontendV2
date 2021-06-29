@@ -27,130 +27,38 @@ import { GetServerSideProps } from 'next';
 
 const { Option } = Select;
 
-interface UnitMeasurement {
+interface ICategorie {
   id: string;
   name: string;
-  abbreviation: string;
   created_at: string;
   active: boolean;
   user_id: string;
   updated_at: string;
 }
-interface props {
-  itens: UnitMeasurement[];
+
+interface IProps {
+  categorie: ICategorie[];
+  notFound: boolean;
 }
 
-export default function index({ itens }: props) {
-  const [unitsMeasurements, setUnitsMeasurements] = useState(itens);
+export default function categories({ categorie, notFound }: IProps) {
+  const [categories, setCategories] = useState(categorie);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [id, setId] = useState('');
   const [name, setName] = useState('');
-  const [abbreviation, setAbbreviation] = useState('');
-
-  const [loading, setLoading] = useState(false);
-
-  function handleEdit(data: UnitMeasurement) {
-    setName(data.name);
-    setId(data.id);
-    setAbbreviation(data.abbreviation);
-    setIsModalOpen(true);
-  }
 
   function handleClose() {
-    setId('');
     setName('');
-    setAbbreviation('');
+    setId('');
     setIsModalOpen(false);
   }
 
-  async function handleRegister(e: FormEvent) {
-    e.preventDefault();
+  function handleRegister() {}
 
-    if (id) {
-      try {
-        const data = {
-          id: id,
-          name: name,
-          abbreviation: abbreviation,
-        };
-        setLoading(true);
-        await api.put('/warehouse/unit-measurement', data);
-        setLoading(false);
-        Notification({
-          type: 'success',
-          title: 'Enviado',
-          description: 'Unidade Editada com sucesso',
-        });
-        console.log('edit');
-      } catch (error) {
-        console.error(error);
-        Notification({
-          type: 'error',
-          title: 'Erro',
-          description: 'Não foi possível Editar a unidade',
-        });
-        setLoading(false);
-      }
-    } else {
-      try {
-        const data = {
-          name: name,
-          abbreviation: abbreviation,
-        };
-        setLoading(true);
-        const response = await api.post('/warehouse/unit-measurement', data);
-        setLoading(false);
-        Notification({
-          type: 'success',
-          title: 'Enviado',
-          description: 'Unidade Cadastrada com sucesso',
-        });
+  function handleDelete(id: string) {}
 
-        const newUnityRegistered = response.data;
-
-        itens.push(newUnityRegistered);
-        setIsModalOpen(false);
-        console.log('create');
-      } catch (error) {
-        console.error(error);
-        Notification({
-          type: 'error',
-          title: 'Erro',
-          description: 'Não foi possível cadastrar a unidade',
-        });
-        setLoading(false);
-      }
-    }
-    setName('');
-    setId('');
-    setAbbreviation('');
-  }
-
-  async function handleDelete(id: string) {
-    try {
-      await api.delete(`/warehouse/unit-measurement/${id}`);
-
-      const filterUnitsMeasurement = unitsMeasurements.filter((iten) => {
-        if (iten.id !== id) {
-          return iten;
-        }
-      });
-
-      setUnitsMeasurements(filterUnitsMeasurement);
-      Notification({
-        type: 'success',
-        title: 'Sucesso',
-        description: 'Unidade Deletada com sucesso',
-      });
-    } catch (error) {
-      console.error(error);
-      Notification({
-        type: 'error',
-        title: 'Erro',
-        description: 'Não foi possível Deletar a unidade',
-      });
-    }
-  }
+  function handleEdit(data: {}) {}
 
   class SearchTable extends React.Component {
     state = {
@@ -246,21 +154,23 @@ export default function index({ itens }: props) {
     render() {
       const columns = [
         {
-          title: 'Descrição',
+          title: 'Nome da Categoria',
           dataIndex: 'name',
           key: 'name',
-          width: '20%',
+          width: '40%',
           ...this.getColumnSearchProps('name'),
           sorter: (a, b) => a.name.length - b.name.length,
         },
-        {
-          title: 'Unidade',
-          dataIndex: 'abbreviation',
 
-          key: 'abbreviation',
-          ...this.getColumnSearchProps('abbreviation'),
-          sorter: (a, b) => a.abbreviation.length - b.abbreviation.length,
+        {
+          title: 'Criado Em',
+          dataIndex: 'created_at',
+          key: 'created_at',
+          width: '40%',
+          ...this.getColumnSearchProps('created_at'),
+          sorter: (a, b) => a.name.length - b.name.length,
         },
+
         {
           title: 'Operação',
           key: 'aaa',
@@ -289,11 +199,12 @@ export default function index({ itens }: props) {
       ];
       return (
         <>
-          <Table columns={columns} dataSource={unitsMeasurements} />
+          <Table columns={columns} dataSource={categories} />
         </>
       );
     }
   }
+
   return (
     <div>
       <Layout>
@@ -305,14 +216,14 @@ export default function index({ itens }: props) {
               icon={<PlusOutlined style={{ fontSize: '16px' }} />}
               onClick={() => setIsModalOpen(true)}
             >
-              Cadastrar Unidade
+              Cadastrar Categoria
             </Button>
           </Col>
         </Row>
         <SearchTable />
       </Layout>
       <Modal
-        title="Cadastro de Unidade de Medida"
+        title="Cadastro de Categoria"
         visible={isModalOpen}
         onCancel={handleClose}
         footer={[
@@ -331,38 +242,19 @@ export default function index({ itens }: props) {
       >
         <Form.Item
           labelCol={{ span: 23 }}
-          label="Descrição"
+          label="Nome:"
           labelAlign={'left'}
           style={{ backgroundColor: 'white', fontWeight: 'bold' }}
           required
         >
           <Input
-            key="descriptionName"
+            key="categorieName"
             size="large"
             style={{ width: 400, marginBottom: '10px' }}
-            placeholder="Descrição da unidade, ex: Litro, Metros Quadrados, ..."
+            placeholder="Nome da categoria"
             value={name}
             onChange={(e) => {
               setName(e.target.value);
-            }}
-          />
-        </Form.Item>
-
-        <Form.Item
-          labelCol={{ span: 23 }}
-          label="Abreviação:"
-          labelAlign={'left'}
-          style={{ backgroundColor: 'white', fontWeight: 'bold' }}
-          required
-        >
-          <Input
-            key="abbreviation"
-            size="large"
-            style={{ width: 400, marginBottom: '10px' }}
-            placeholder="Digite a Abreviação, ex: L, M²"
-            value={abbreviation}
-            onChange={(e) => {
-              setAbbreviation(e.target.value);
             }}
           />
         </Form.Item>
@@ -373,19 +265,18 @@ export default function index({ itens }: props) {
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   try {
-    const { data } = await api.get('/warehouse/unit-measurement');
-    console.log('aaaaa: ', data);
+    const { data } = await api.get('/warehouse/categories');
 
     return {
       props: {
-        itens: data,
+        categorie: data,
       },
     };
   } catch (error) {
     console.error(error);
     return {
       props: {
-        itens: [{ id: '', name: '', created: '' }],
+        categorie: [{ id: '', name: '', createdAt: '' }],
       },
     };
   }
