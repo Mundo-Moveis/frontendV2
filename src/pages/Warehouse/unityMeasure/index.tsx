@@ -90,7 +90,6 @@ export default function index({ itens }: props) {
           title: 'Enviado',
           description: 'Unidade Editada com sucesso',
         });
-        console.log('edit');
       } catch (error) {
         console.error(error);
         Notification({
@@ -127,7 +126,6 @@ export default function index({ itens }: props) {
 
         itens.push(newUnityRegistered);
         setIsModalOpen(false);
-        console.log('create');
       } catch (error) {
         console.error(error);
         Notification({
@@ -206,7 +204,6 @@ export default function index({ itens }: props) {
         type: 'json',
         data: getRandomuserParams(params),
       }).then((data) => {
-        console.log(data);
         this.setState({
           loading: false,
           data: data.results,
@@ -442,7 +439,6 @@ export default function index({ itens }: props) {
 export const getServerSideProps: GetServerSideProps = async (context) => {
   try {
     const { data } = await api.get('/warehouse/unit-measurement');
-    console.log('aaaaa: ', data);
 
     return {
       props: {
