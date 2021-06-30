@@ -79,7 +79,6 @@ export default function categories({ categorie, notFound }: IProps) {
           title: 'Enviado',
           description: 'Categoria Editada com sucesso',
         });
-        console.log('edit');
       } catch (error) {
         console.error(error);
         Notification({
@@ -134,7 +133,7 @@ export default function categories({ categorie, notFound }: IProps) {
 
   async function handleDelete(id: string) {
     try {
-      await api.delete(`/warehouse/unit-measurement/${id}`);
+      await api.delete(`/warehouse/categories/${id}`);
 
       const filterCategories = categories.filter((iten) => {
         if (iten.id !== id) {
@@ -159,7 +158,6 @@ export default function categories({ categorie, notFound }: IProps) {
   }
 
   function handleEdit(data: ICategorie) {
-    console.log(data);
     setIsModalOpen(true);
     setId(data.id);
     setName(data.name);
@@ -273,7 +271,7 @@ export default function categories({ categorie, notFound }: IProps) {
           key: 'created_at',
           width: '40%',
           ...this.getColumnSearchProps('created_at'),
-          sorter: (a, b) => a.name.length - b.name.length,
+          sorter: (a, b) => a.created_at.length - b.created_at.length,
         },
 
         {

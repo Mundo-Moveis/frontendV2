@@ -45,8 +45,6 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ screen, display }: SidebarProps) {
-  console.log(display);
-
   return (
     <>
       {display ? (
@@ -57,12 +55,12 @@ export default function Sidebar({ screen, display }: SidebarProps) {
             style={{ minHeight: '100vh' }}
           >
             <Menu theme="dark" mode="inline" defaultSelectedKeys={['1']}>
-              <Menu.Item key="1" icon={<DashboardOutlined />}>
+              <Menu.Item key="Dashboard" icon={<DashboardOutlined />}>
                 <Link href="/profile">Dashboard</Link>
               </Menu.Item>
 
               <SubMenu
-                key="2"
+                key="PCP"
                 title="PCP"
                 icon={
                   <span className="anticon anticon-bank">
@@ -70,7 +68,7 @@ export default function Sidebar({ screen, display }: SidebarProps) {
                   </span>
                 }
               >
-                <Menu.Item key="31" icon={<PlusOutlined />}>
+                <Menu.Item key="producao" icon={<PlusOutlined />}>
                   <Link href="/pcp">Produção</Link>
                 </Menu.Item>
                 <SubMenu
@@ -175,14 +173,14 @@ export default function Sidebar({ screen, display }: SidebarProps) {
                   title="Consultas"
                   icon={<SearchOutlined />}
                 >
-                  <Menu.Item key="19" icon={<FileExcelOutlined />}>
+                  <Menu.Item key="estoque" icon={<FileExcelOutlined />}>
                     <Link href="/wmsRawStorage/Search">Estoque</Link>
                   </Menu.Item>
 
-                  <Menu.Item key="21" icon={<FileExcelOutlined />}>
+                  <Menu.Item key="relat-saida" icon={<FileExcelOutlined />}>
                     <Link href="/wmsRawExit/Resume">Rel. Saídas</Link>
                   </Menu.Item>
-                  <Menu.Item key="32" icon={<FileExcelOutlined />}>
+                  <Menu.Item key="rowMaterial" icon={<FileExcelOutlined />}>
                     <Link href="/wmsRawMaterial/Search/entry">
                       Rel. entrada
                     </Link>
@@ -326,7 +324,7 @@ export default function Sidebar({ screen, display }: SidebarProps) {
                 </SubMenu>
 
                 <Menu.Item
-                  key="32"
+                  key="Chamada"
                   icon={
                     <span className="anticon anticon-bank">
                       <BsListCheck color="#fff" size={16} />
@@ -385,7 +383,7 @@ export default function Sidebar({ screen, display }: SidebarProps) {
                   title="Cadastros"
                   icon={<PlusOutlined />}
                 >
-                  <Menu.Item key="7" icon={<RightSquareOutlined />}>
+                  <Menu.Item key="subproduto" icon={<RightSquareOutlined />}>
                     <Link href="/sub-product">Subproduto</Link>
                   </Menu.Item>
                   <Menu.Item key="stockCover" icon={<RightSquareOutlined />}>

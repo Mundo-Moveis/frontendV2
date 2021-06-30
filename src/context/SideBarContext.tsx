@@ -16,8 +16,6 @@ export function SideBarProvider({ children }: SideBarProviderProps) {
 
   const showSideBar = pathname !== '/';
 
-  console.log(showSideBar);
-
   return (
     <SideBarContext.Provider value={{}}>
       <Sidebar screen={children} display={showSideBar} />
