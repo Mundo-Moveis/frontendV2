@@ -32,10 +32,7 @@ interface UnitMeasurement {
   id: string;
   name: string;
   abbreviation: string;
-  created_at: string;
-  active: boolean;
   user_id: string;
-  updated_at: string;
 }
 interface props {
   itens: UnitMeasurement[];
@@ -174,47 +171,8 @@ export default function index({ itens }: props) {
   });
   class SearchTable extends React.Component {
     state = {
-      pagination: {
-        current: 1,
-        pageSize: 6,
-      },
       searchText: '',
       searchedColumn: '',
-    };
-
-    componentDidMount() {
-      const { pagination } = this.state;
-      this.fetch({ pagination });
-    }
-
-    handleTableChange = (pagination, filters, sorter) => {
-      this.fetch({
-        sortField: sorter.field,
-        sortOrder: sorter.order,
-        pagination,
-        ...filters,
-      });
-    };
-
-    fetch = (params = {}) => {
-      this.setState({ loading: true });
-      reqwest({
-        url: 'https://randomuser.me/api',
-        method: 'get',
-        type: 'json',
-        data: getRandomuserParams(params),
-      }).then((data) => {
-        this.setState({
-          loading: false,
-          data: data.results,
-          pagination: {
-            ...params.pagination,
-            total: 200,
-            // 200 is mock data, you should read it from server
-            // total: data.totalCount,
-          },
-        });
-      });
     };
 
     getColumnSearchProps = (dataIndex) => ({
@@ -346,15 +304,10 @@ export default function index({ itens }: props) {
           },
         },
       ];
-      const { pagination } = this.state;
+
       return (
         <>
-          <Table
-            pagination={pagination}
-            columns={columns}
-            onChange={this.handleTableChange}
-            dataSource={unitsMeasurements}
-          />
+          <Table columns={columns} dataSource={unitsMeasurements} />
         </>
       );
     }
@@ -449,7 +402,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     console.error(error);
     return {
       props: {
-        itens: [{ id: '', name: '', created: '' }],
+        itens: [{ id: '', name: '', created_at: '' }],
       },
     };
   }

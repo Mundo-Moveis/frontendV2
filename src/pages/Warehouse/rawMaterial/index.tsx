@@ -1,3 +1,5 @@
+import React, { FormEvent, useState } from 'react';
+
 import {
   DeleteOutlined,
   EditFilled,
@@ -17,40 +19,65 @@ import {
   Space,
   Table,
 } from 'antd';
-import React, { FormEvent, useState } from 'react';
 import Highlighter from 'react-highlight-words';
+
 import styles from './styles/style.module.scss';
 
 import { Notification } from '../../../components/Notification';
 import { api } from '../../../services/api';
 import { GetServerSideProps } from 'next';
-
 const { Option } = Select;
+
+interface IRawMaterial {
+  id: string;
+  code: string;
+  name: string;
+  category_id: string;
+  unit_of_measurement_id: string;
+  coefficient: Number;
+  user_id: string;
+}
+
+interface IUnMeasure {
+  id: string;
+  name: string;
+}
 
 interface ICategorie {
   id: string;
   name: string;
-  created_at: Date;
-  active: boolean;
-  user_id: string;
-  updated_at: Date;
 }
 
 interface IProps {
+  rawMaterial: IRawMaterial[];
+  unMeasure: IUnMeasure[];
   categorie: ICategorie[];
-  notFound: boolean;
 }
-
-export default function categories({ categorie, notFound }: IProps) {
+export default function rawMaterial({
+  rawMaterial,
+  unMeasure,
+  categorie,
+}: IProps) {
+  const [rawMaterials, setRawMaterials] = useState(rawMaterial);
+  const [unitMeasures, setUnitMeasures] = useState(unMeasure);
   const [categories, setCategories] = useState(categorie);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [id, setId] = useState('');
   const [name, setName] = useState('');
+  const [code, setCode] = useState('');
+  const [idCategory, setIdCategory] = useState('');
+  const [idUnitMeasure, setIdUnitMeasure] = useState('');
+  const [coefficient, setCoefficient] = useState('');
 
   function handleClose() {
-    setName('');
     setId('');
+    setName('');
+    setCode('');
+    setIdCategory('');
+    setIdCategory('');
+    setCoefficient('');
+
     setIsModalOpen(false);
   }
 
@@ -59,70 +86,93 @@ export default function categories({ categorie, notFound }: IProps) {
 
     if (id) {
       try {
-        if (name === '') {
+        if (
+          name === '' ||
+          code === '' ||
+          idCategory === '' ||
+          idUnitMeasure === '' ||
+          coefficient === ''
+        ) {
           setLoading(false);
           return Notification({
             type: 'error',
             title: 'Erro',
-            description: 'Não foi possível editar a categoria',
+            description:
+              'Não foi possível cadastrar o Insumo, existem campos vazios',
           });
         }
         const data = {
           id: id,
           name: name,
+          code: code,
+          idCategory: idCategory,
+          idUnitMeasure: idUnitMeasure,
+          coefficient: coefficient,
         };
         setLoading(true);
-        await api.put(`/warehouse/categories${id}`, data);
+        await api.put(`/warehouse/raw-material/${id}`, data);
         setLoading(false);
         Notification({
           type: 'success',
           title: 'Enviado',
-          description: 'Categoria Editada com sucesso',
+          description: 'Insumo Editado com sucesso',
         });
       } catch (error) {
         console.error(error);
         Notification({
           type: 'error',
           title: 'Erro',
-          description: 'Não foi possível Editar a Categoria',
+          description: 'Não foi possível Editar o Insumo',
         });
         setLoading(false);
       }
     } else {
       try {
-        if (name === '') {
+        if (
+          name === '' ||
+          code === '' ||
+          idCategory === '' ||
+          idUnitMeasure === '' ||
+          coefficient === ''
+        ) {
           setLoading(false);
           return Notification({
             type: 'error',
             title: 'Erro',
-            description: 'Não foi possível cadastrar a categoria',
+            description:
+              'Não foi possível cadastrar o Insumo, existem campos vazios',
           });
         }
 
         const data = {
           name: name,
+          code: code,
+          category_id: idCategory,
+          unit_of_measurement_id: idUnitMeasure,
+          coefficient: coefficient,
         };
 
-        setLoading(true);
-        const response = await api.post('/warehouse/categories', data);
+        //setLoading(true);
+        const response = await api.post('/warehouse/raw-material/', data);
+        console.log(response.data);
+
         setLoading(false);
 
         Notification({
           type: 'success',
           title: 'Enviado',
-          description: 'Categoria Cadastrada com sucesso',
+          description: 'Insumo Cadastrado com sucesso',
         });
 
-        const newCategorieRegistered = response.data;
-
-        categorie.push(newCategorieRegistered);
+        const newInsRegistered = response.data;
+        rawMaterial.push(newInsRegistered);
         setIsModalOpen(false);
       } catch (error) {
         console.error(error);
         Notification({
           type: 'error',
           title: 'Erro',
-          description: 'Não foi possível cadastrar a Categoria',
+          description: 'Não foi possível cadastrar o Insumo',
         });
         setLoading(false);
       }
@@ -133,15 +183,15 @@ export default function categories({ categorie, notFound }: IProps) {
 
   async function handleDelete(id: string) {
     try {
-      await api.delete(`/warehouse/categories/${id}`);
+      await api.delete(`/warehouse/raw-material/${id}`);
 
-      const filterCategories = categories.filter((iten) => {
+      const filterCategories = rawMaterial.filter((iten) => {
         if (iten.id !== id) {
           return iten;
         }
       });
 
-      setCategories(filterCategories);
+      setRawMaterials(filterCategories);
       Notification({
         type: 'success',
         title: 'Sucesso',
@@ -157,10 +207,18 @@ export default function categories({ categorie, notFound }: IProps) {
     }
   }
 
-  function handleEdit(data: ICategorie) {
-    setIsModalOpen(true);
+  async function handleEdit(data: IRawMaterial) {
+    console.log(data);
     setId(data.id);
     setName(data.name);
+    setCode(data.code);
+
+    const response = await api.get(`/warehouse/raw-material/${data.id}`);
+    console.log(response.data);
+
+    setIdCategory(response.data.category_id);
+    setIdUnitMeasure(response.data.unit_of_measurement_id);
+    setIsModalOpen(true);
   }
 
   class SearchTable extends React.Component {
@@ -257,26 +315,43 @@ export default function categories({ categorie, notFound }: IProps) {
     render() {
       const columns = [
         {
-          title: 'Nome da Categoria',
+          title: 'INS',
+          dataIndex: 'code',
+          key: 'code',
+          width: '20%',
+          ...this.getColumnSearchProps('code'),
+          sorter: (a, b) => a.code.length - b.code.length,
+        },
+        {
+          title: 'Descrição',
           dataIndex: 'name',
           key: 'name',
-          width: '40%',
-          ...this.getColumnSearchProps('name'),
-          sorter: (a, b) => a.name.length - b.name.length,
+          width: '30%',
+          ...this.getColumnSearchProps('ins'),
+          sorter: (a, b) => a.ins.length - b.ins.length,
         },
 
+        {
+          title: 'Un.Medida',
+          dataIndex: 'unit_of_measurement_id',
+          key: 'unit_of_measurement_id',
+          width: '20%',
+          ...this.getColumnSearchProps('unit_of_measurement_id'),
+          sorter: (a, b) =>
+            a.unit_of_measurement_id.length - b.unit_of_measurement_id.length,
+        },
         {
           title: 'Criado Em',
           dataIndex: 'created_at',
           key: 'created_at',
-          width: '40%',
+          width: '30%',
           ...this.getColumnSearchProps('created_at'),
           sorter: (a, b) => a.created_at.length - b.created_at.length,
         },
 
         {
           title: 'Operação',
-          key: 'aaa',
+          key: 'operation',
           render: (record) => {
             return (
               <>
@@ -302,12 +377,11 @@ export default function categories({ categorie, notFound }: IProps) {
       ];
       return (
         <>
-          <Table columns={columns} dataSource={categories} />
+          <Table columns={columns} dataSource={rawMaterials} />
         </>
       );
     }
   }
-
   return (
     <div>
       <Layout>
@@ -319,14 +393,14 @@ export default function categories({ categorie, notFound }: IProps) {
               icon={<PlusOutlined style={{ fontSize: '16px' }} />}
               onClick={() => setIsModalOpen(true)}
             >
-              Cadastrar Categoria
+              Cadastrar Insumo
             </Button>
           </Col>
         </Row>
         <SearchTable />
       </Layout>
       <Modal
-        title="Cadastro de Categoria"
+        title="Cadastro de Insumos"
         visible={isModalOpen}
         onCancel={handleClose}
         footer={[
@@ -344,21 +418,114 @@ export default function categories({ categorie, notFound }: IProps) {
         ]}
       >
         <Form.Item
+          key="insFormItem"
           labelCol={{ span: 23 }}
-          label="Nome:"
+          label="Código INS"
           labelAlign={'left'}
           style={{ backgroundColor: 'white', fontWeight: 'bold' }}
           required
         >
           <Input
-            key="categorieName"
+            key="insName"
             size="large"
             style={{ width: 400, marginBottom: '10px' }}
-            placeholder="Nome da categoria"
+            placeholder="Digite o código INS, ex: "
+            value={code}
+            onChange={(e) => {
+              setCode(e.target.value);
+            }}
+          />
+        </Form.Item>
+        <Form.Item
+          key="Categoria"
+          labelCol={{ span: 23 }}
+          label="Categoria:"
+          labelAlign={'left'}
+          style={{ backgroundColor: 'white', fontWeight: 'bold' }}
+          required
+        >
+          <Select
+            showSearch
+            size="large"
+            style={{ width: 400, marginBottom: '10px' }}
+            placeholder="Escolha a categoria"
+            onChange={(e) => {
+              setIdCategory(e.toString());
+            }}
+          >
+            {categories.map((categorie) => (
+              <>
+                <Option key={categorie.id} value={categorie.id}>
+                  {categorie.name}
+                </Option>
+              </>
+            ))}
+          </Select>
+        </Form.Item>
+        <Form.Item
+          key="descriptionFormItem"
+          labelCol={{ span: 23 }}
+          label="Descrição:"
+          labelAlign={'left'}
+          style={{ backgroundColor: 'white', fontWeight: 'bold' }}
+          required
+        >
+          <Input
+            key="descriptionIns"
+            size="large"
+            style={{ width: 400, marginBottom: '10px' }}
+            placeholder="Descrição do INS"
             value={name}
             onChange={(e) => {
               setName(e.target.value);
             }}
+          />
+        </Form.Item>
+        <Form.Item
+          key="Unidade de Medida"
+          labelCol={{ span: 23 }}
+          label="Unidade de Medida:"
+          labelAlign={'left'}
+          style={{ backgroundColor: 'white', fontWeight: 'bold' }}
+          required
+        >
+          <Select
+            showSearch
+            size="large"
+            style={{ width: 400, marginBottom: '10px' }}
+            placeholder="Select a person"
+            optionFilterProp="children"
+            onChange={(e) => {
+              setIdUnitMeasure(e.toString());
+            }}
+          >
+            {unitMeasures.map((unit) => (
+              <>
+                <Option key={unit.id} value={unit.id}>
+                  {unit.name}
+                </Option>
+              </>
+            ))}
+          </Select>
+        </Form.Item>
+        <Form.Item
+          key="fatorDeConversão"
+          labelCol={{ span: 23 }}
+          label="Fator de Conversão:"
+          labelAlign={'left'}
+          style={{ backgroundColor: 'white', fontWeight: 'bold' }}
+          required
+        >
+          <Input
+            key="descriptionIns"
+            size="large"
+            style={{ width: 400, marginBottom: '10px' }}
+            placeholder="Digite o Fator"
+            value={coefficient}
+            onChange={(e) => {
+              setCoefficient(e.target.value);
+            }}
+            pattern="[0-9]+$"
           />
         </Form.Item>
       </Modal>
@@ -368,18 +535,26 @@ export default function categories({ categorie, notFound }: IProps) {
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   try {
-    const { data } = await api.get('/warehouse/categories');
+    const rawMaterialResponse = await api.get('/warehouse/raw-material');
+    const unMeaseureResponse = await api.get('/warehouse/unit-measurement');
+    const categorieResponse = await api.get('/warehouse/categories');
+
+    const rawMaterialData = rawMaterialResponse.data;
+    const unMeasureData = unMeaseureResponse.data;
+    const categorieData = categorieResponse.data;
 
     return {
       props: {
-        categorie: data,
+        rawMaterial: rawMaterialData,
+        unMeasure: unMeasureData,
+        categorie: categorieData,
       },
     };
   } catch (error) {
     console.error(error);
     return {
       props: {
-        categorie: [{ id: '', name: '', createdAt: '' }],
+        itens: [{ id: '', name: '', created_at: '' }],
       },
     };
   }
