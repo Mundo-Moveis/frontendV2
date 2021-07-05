@@ -92,7 +92,7 @@ export default function supplier({ supplier }: IProp) {
       }
     } else {
       try {
-        if (name === '' || email === '' || phone === '' || id === '') {
+        if (name === '' || email === '' || phone === '') {
           setLoading(false);
           return Notification({
             type: 'error',
@@ -106,8 +106,13 @@ export default function supplier({ supplier }: IProp) {
           phone: phone,
         };
         setLoading(true);
-        await api.post(`/warehouse/supllier`, data);
+        const response = await api.post(`/warehouse/supplier`, data);
         setLoading(false);
+
+        const newSupplierRegistered = response.data;
+
+        suppliers.push(newSupplierRegistered);
+        setIsModalOpen(false);
         Notification({
           type: 'success',
           title: 'Enviado',
@@ -124,9 +129,40 @@ export default function supplier({ supplier }: IProp) {
     }
   }
 
-  async function handleDelete(id: string) {}
+  async function handleDelete(id: string) {
+    try {
+      await api.delete(`/warehouse/supplier/${id}`);
 
-  async function handleEdit(data: ISupplier) {}
+      const filterSuppliers = suppliers.filter((iten) => {
+        if (iten.id !== id) {
+          return iten;
+        }
+      });
+
+      setSuppliers(filterSuppliers);
+      Notification({
+        type: 'success',
+        title: 'Sucesso',
+        description: 'Fornecedor Deletado com sucesso',
+      });
+    } catch (error) {
+      console.error(error);
+      Notification({
+        type: 'error',
+        title: 'Erro',
+        description: 'Não foi possível Deletar o fornecedor',
+      });
+    }
+  }
+
+  async function handleEdit(data: ISupplier) {
+    setName(data.name);
+    setId(data.id);
+    setPhone(data.phone);
+    setEmail(data.email);
+
+    setIsModalOpen(true);
+  }
 
   class SearchTable extends React.Component {
     state = {
@@ -225,7 +261,7 @@ export default function supplier({ supplier }: IProp) {
           title: 'Nome',
           dataIndex: 'name',
           key: 'name',
-          width: '40%',
+          width: '30%',
           ...this.getColumnSearchProps('name'),
           sorter: (a, b) => a.name.length - b.name.length,
         },
@@ -233,9 +269,17 @@ export default function supplier({ supplier }: IProp) {
           title: 'Email',
           dataIndex: 'email',
           key: 'email',
-          width: '40%',
+          width: '30%',
           ...this.getColumnSearchProps('email'),
           sorter: (a, b) => a.email.length - b.email.length,
+        },
+        {
+          title: 'Telefone',
+          dataIndex: 'phone',
+          key: 'phone',
+          width: '20%',
+          ...this.getColumnSearchProps('created_at'),
+          sorter: (a, b) => a.phone.length - b.phone.length,
         },
         {
           title: 'Criado Em',
@@ -369,3 +413,22 @@ export default function supplier({ supplier }: IProp) {
     </div>
   );
 }
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  try {
+    const { data } = await api.get('/warehouse/supplier');
+
+    return {
+      props: {
+        supplier: data,
+      },
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      props: {
+        categorie: [{ id: '', name: '', email: '', phone: '' }],
+      },
+    };
+  }
+};
