@@ -4,7 +4,6 @@ import {
   PlusOutlined,
   SearchOutlined,
 } from '@ant-design/icons';
-import reqwest from 'reqwest';
 import {
   Button,
   Col,
@@ -22,153 +21,113 @@ import React, { FormEvent, useState } from 'react';
 import Highlighter from 'react-highlight-words';
 import styles from './styles/style.module.scss';
 
-import { Notification } from '../../../components/Notification';
-import { api } from '../../../services/api';
+import { Notification } from '../../../../components/Notification';
+import { api } from '../../../../services/api';
 import { GetServerSideProps } from 'next';
 
 const { Option } = Select;
 
-interface UnitMeasurement {
+interface ISupplier {
   id: string;
   name: string;
-  abbreviation: string;
-  user_id: string;
-}
-interface props {
-  itens: UnitMeasurement[];
+  email: string;
+  phone: string;
 }
 
-export default function index({ itens }: props) {
-  const [unitsMeasurements, setUnitsMeasurements] = useState(itens);
+interface IProp {
+  supplier: ISupplier[];
+}
+
+export default function supplier({ supplier }: IProp) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [suppliers, setSuppliers] = useState(supplier);
   const [id, setId] = useState('');
   const [name, setName] = useState('');
-  const [abbreviation, setAbbreviation] = useState('');
-
-  const [loading, setLoading] = useState(false);
-
-  function handleEdit(data: UnitMeasurement) {
-    setName(data.name);
-    setId(data.id);
-    setAbbreviation(data.abbreviation);
-    setIsModalOpen(true);
-  }
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
 
   function handleClose() {
     setId('');
     setName('');
-    setAbbreviation('');
+    setEmail('');
+    setPhone('');
+
     setIsModalOpen(false);
   }
 
-  async function handleRegister(e: FormEvent) {
+  async function handleRegister(e) {
     e.preventDefault();
 
     if (id) {
       try {
-        if (name === '' || abbreviation === '') {
+        if (name === '' || email === '' || phone === '' || id === '') {
           setLoading(false);
           return Notification({
             type: 'error',
             title: 'Erro',
-            description: 'Não foi possível editar a unidade',
+            description: 'Existem campos vazios',
           });
         }
         const data = {
-          id: id,
           name: name,
-          abbreviation: abbreviation,
+          email: email,
+          phone: phone,
         };
         setLoading(true);
-        await api.put(`/warehouse/unit-measurement${id}`, data);
+        await api.put(`/warehouse/supllier/${id}`, data);
         setLoading(false);
         Notification({
           type: 'success',
           title: 'Enviado',
-          description: 'Unidade Editada com sucesso',
+          description: 'Fornecedor Editado com sucesso',
         });
       } catch (error) {
-        console.error(error);
-        Notification({
+        console.log(error);
+        return Notification({
           type: 'error',
           title: 'Erro',
-          description: 'Não foi possível Editar a unidade',
+          description: 'Não foi possível editar o Fornecedor',
         });
-        setLoading(false);
       }
     } else {
       try {
-        if (name === '' || abbreviation === '') {
+        if (name === '' || email === '' || phone === '' || id === '') {
           setLoading(false);
           return Notification({
             type: 'error',
             title: 'Erro',
-            description: 'Não foi possível cadastrar a unidade',
+            description: 'Existem campos vazios',
           });
         }
         const data = {
           name: name,
-          abbreviation: abbreviation,
+          email: email,
+          phone: phone,
         };
         setLoading(true);
-        const response = await api.post('/warehouse/unit-measurement', data);
+        await api.post(`/warehouse/supllier`, data);
         setLoading(false);
         Notification({
           type: 'success',
           title: 'Enviado',
-          description: 'Unidade Cadastrada com sucesso',
+          description: 'Fornecedor Criado com sucesso',
         });
-
-        const newUnityRegistered = response.data;
-
-        itens.push(newUnityRegistered);
-        setIsModalOpen(false);
       } catch (error) {
-        console.error(error);
-        Notification({
+        console.log(error);
+        return Notification({
           type: 'error',
           title: 'Erro',
-          description: 'Não foi possível cadastrar a unidade',
+          description: 'Não foi possível cadastrar o Fornecedor',
         });
-        setLoading(false);
       }
     }
-    setName('');
-    setId('');
-    setAbbreviation('');
   }
 
-  async function handleDelete(id: string) {
-    try {
-      await api.delete(`/warehouse/unit-measurement/${id}`);
+  async function handleDelete(id: string) {}
 
-      const filterUnitsMeasurement = unitsMeasurements.filter((iten) => {
-        if (iten.id !== id) {
-          return iten;
-        }
-      });
+  async function handleEdit(data: ISupplier) {}
 
-      setUnitsMeasurements(filterUnitsMeasurement);
-      Notification({
-        type: 'success',
-        title: 'Sucesso',
-        description: 'Unidade Deletada com sucesso',
-      });
-    } catch (error) {
-      console.error(error);
-      Notification({
-        type: 'error',
-        title: 'Erro',
-        description: 'Não foi possível Deletar a unidade',
-      });
-    }
-  }
-
-  const getRandomuserParams = (params) => ({
-    results: params.pagination.pageSize,
-    page: params.pagination.current,
-    ...params,
-  });
   class SearchTable extends React.Component {
     state = {
       searchText: '',
@@ -263,24 +222,32 @@ export default function index({ itens }: props) {
     render() {
       const columns = [
         {
-          title: 'Descrição',
+          title: 'Nome',
           dataIndex: 'name',
           key: 'name',
-          width: '20%',
+          width: '40%',
           ...this.getColumnSearchProps('name'),
           sorter: (a, b) => a.name.length - b.name.length,
         },
         {
-          title: 'Unidade',
-          dataIndex: 'abbreviation',
-
-          key: 'abbreviation',
-          ...this.getColumnSearchProps('abbreviation'),
-          sorter: (a, b) => a.abbreviation.length - b.abbreviation.length,
+          title: 'Email',
+          dataIndex: 'email',
+          key: 'email',
+          width: '40%',
+          ...this.getColumnSearchProps('email'),
+          sorter: (a, b) => a.email.length - b.email.length,
+        },
+        {
+          title: 'Criado Em',
+          dataIndex: 'created_at',
+          key: 'created_at',
+          width: '40%',
+          ...this.getColumnSearchProps('created_at'),
+          sorter: (a, b) => a.created_at.length - b.created_at.length,
         },
         {
           title: 'Operação',
-          key: 'aaa',
+          key: 'operation',
           render: (record) => {
             return (
               <>
@@ -304,14 +271,10 @@ export default function index({ itens }: props) {
           },
         },
       ];
-
-      return (
-        <>
-          <Table columns={columns} dataSource={unitsMeasurements} />
-        </>
-      );
+      return <Table columns={columns} dataSource={suppliers} />;
     }
   }
+
   return (
     <div>
       <Layout>
@@ -323,14 +286,15 @@ export default function index({ itens }: props) {
               icon={<PlusOutlined style={{ fontSize: '16px' }} />}
               onClick={() => setIsModalOpen(true)}
             >
-              Cadastrar Unidade
+              Cadastrar Categoria
             </Button>
           </Col>
         </Row>
         <SearchTable />
       </Layout>
+
       <Modal
-        title="Cadastro de Unidade de Medida"
+        title="Cadastro de Categoria"
         visible={isModalOpen}
         onCancel={handleClose}
         footer={[
@@ -349,38 +313,55 @@ export default function index({ itens }: props) {
       >
         <Form.Item
           labelCol={{ span: 23 }}
-          label="Descrição"
+          label="Nome:"
           labelAlign={'left'}
           style={{ backgroundColor: 'white', fontWeight: 'bold' }}
           required
         >
           <Input
-            key="descriptionName"
+            key="supplierName"
             size="large"
             style={{ width: 400, marginBottom: '10px' }}
-            placeholder="Descrição da unidade, ex: Litro, Metros Quadrados, ..."
+            placeholder="Digite o Nome do Fornecedor"
             value={name}
             onChange={(e) => {
               setName(e.target.value);
             }}
           />
         </Form.Item>
-
         <Form.Item
           labelCol={{ span: 23 }}
-          label="Abreviação:"
+          label="Email:"
           labelAlign={'left'}
           style={{ backgroundColor: 'white', fontWeight: 'bold' }}
           required
         >
           <Input
-            key="abbreviation"
+            key="supplierEmail"
             size="large"
             style={{ width: 400, marginBottom: '10px' }}
-            placeholder="Digite a Abreviação, ex: L, M²"
-            value={abbreviation}
+            placeholder="Digite o Email do Fornecedor"
+            value={email}
             onChange={(e) => {
-              setAbbreviation(e.target.value);
+              setEmail(e.target.value);
+            }}
+          />
+        </Form.Item>
+        <Form.Item
+          labelCol={{ span: 23 }}
+          label="Telefone:"
+          labelAlign={'left'}
+          style={{ backgroundColor: 'white', fontWeight: 'bold' }}
+          required
+        >
+          <Input
+            key="supplierPhone"
+            size="large"
+            style={{ width: 400, marginBottom: '10px' }}
+            placeholder="Digite o Telefone do Fornecedor"
+            value={phone}
+            onChange={(e) => {
+              setPhone(e.target.value);
             }}
           />
         </Form.Item>
@@ -388,22 +369,3 @@ export default function index({ itens }: props) {
     </div>
   );
 }
-
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  try {
-    const { data } = await api.get('/warehouse/unit-measurement');
-
-    return {
-      props: {
-        itens: data,
-      },
-    };
-  } catch (error) {
-    console.error(error);
-    return {
-      props: {
-        itens: [{ id: '', name: '', created_at: '' }],
-      },
-    };
-  }
-};

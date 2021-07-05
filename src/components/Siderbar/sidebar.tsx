@@ -73,18 +73,22 @@ export default function Sidebar({ screen, display }: SidebarProps) {
                   icon={<PlusOutlined />}
                 >
                   <Menu.Item key="Un.Medidas" icon={<RightSquareOutlined />}>
-                    <Link href="/Warehouse/unityMeasure">Un. Medidas</Link>
+                    <Link href="/Warehouse/Register/unityMeasure">
+                      Un. Medidas
+                    </Link>
                   </Menu.Item>
                   <Menu.Item key="Categoria" icon={<RightSquareOutlined />}>
-                    <Link href="/Warehouse/categories">Categoria</Link>
+                    <Link href="/Warehouse/Register/categories">Categoria</Link>
                   </Menu.Item>
 
                   <Menu.Item key="Fornecedores" icon={<RightSquareOutlined />}>
-                    <Link href="/wmsRawSupplier">Fornecedores</Link>
+                    <Link href="/Warehouse/Register/supplier">
+                      Fornecedores
+                    </Link>
                   </Menu.Item>
 
                   <Menu.Item key="Insumos" icon={<RightSquareOutlined />}>
-                    <Link href="/Warehouse/rawMaterial">Insumos</Link>
+                    <Link href="/Warehouse/Register/rawMaterial">Insumos</Link>
                   </Menu.Item>
 
                   <Menu.Item key="Posições" icon={<RightSquareOutlined />}>

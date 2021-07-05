@@ -1,5 +1,3 @@
-import React, { FormEvent, useState } from 'react';
-
 import {
   DeleteOutlined,
   EditFilled,
@@ -19,179 +17,137 @@ import {
   Space,
   Table,
 } from 'antd';
+import React, { FormEvent, useState } from 'react';
 import Highlighter from 'react-highlight-words';
-
 import styles from './styles/style.module.scss';
 
-import { Notification } from '../../../components/Notification';
-import { api } from '../../../services/api';
+import { Notification } from '../../../../components/Notification';
+import { api } from '../../../../services/api';
 import { GetServerSideProps } from 'next';
+
 const { Option } = Select;
 
-interface IRawMaterial {
+interface UnitMeasurement {
   id: string;
-  code: string;
   name: string;
-  category_id: string;
-  unit_of_measurement_id: string;
-  coefficient: Number;
+  abbreviation: string;
   user_id: string;
 }
-
-interface IUnMeasure {
-  id: string;
-  name: string;
+interface props {
+  itens: UnitMeasurement[];
 }
 
-interface ICategorie {
-  id: string;
-  name: string;
-}
-
-interface IProps {
-  rawMaterial: IRawMaterial[];
-  unMeasure: IUnMeasure[];
-  categorie: ICategorie[];
-}
-export default function rawMaterial({
-  rawMaterial,
-  unMeasure,
-  categorie,
-}: IProps) {
-  const [rawMaterials, setRawMaterials] = useState(rawMaterial);
-  const [unitMeasures, setUnitMeasures] = useState(unMeasure);
-  const [categories, setCategories] = useState(categorie);
+export default function index({ itens }: props) {
+  const [unitsMeasurements, setUnitsMeasurements] = useState(itens);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [id, setId] = useState('');
   const [name, setName] = useState('');
-  const [code, setCode] = useState('');
-  const [idCategory, setIdCategory] = useState('');
-  const [idUnitMeasure, setIdUnitMeasure] = useState('');
-  const [coefficient, setCoefficient] = useState('');
+  const [abbreviation, setAbbreviation] = useState('');
+
+  const [loading, setLoading] = useState(false);
+
+  function handleEdit(data: UnitMeasurement) {
+    setName(data.name);
+    setId(data.id);
+    setAbbreviation(data.abbreviation);
+    setIsModalOpen(true);
+  }
 
   function handleClose() {
     setId('');
     setName('');
-    setCode('');
-    setIdCategory('');
-    setIdCategory('');
-    setCoefficient('');
-
+    setAbbreviation('');
     setIsModalOpen(false);
   }
 
-  async function handleRegister(e) {
+  async function handleRegister(e: FormEvent) {
     e.preventDefault();
 
     if (id) {
       try {
-        if (
-          name === '' ||
-          code === '' ||
-          idCategory === '' ||
-          idUnitMeasure === '' ||
-          coefficient === ''
-        ) {
+        if (name === '' || abbreviation === '') {
           setLoading(false);
           return Notification({
             type: 'error',
             title: 'Erro',
-            description:
-              'Não foi possível cadastrar o Insumo, existem campos vazios',
+            description: 'Não foi possível editar a unidade',
           });
         }
         const data = {
           id: id,
           name: name,
-          code: code,
-          idCategory: idCategory,
-          idUnitMeasure: idUnitMeasure,
-          coefficient: coefficient,
+          abbreviation: abbreviation,
         };
         setLoading(true);
-        await api.put(`/warehouse/raw-material/${id}`, data);
+        await api.put(`/warehouse/unit-measurement${id}`, data);
         setLoading(false);
         Notification({
           type: 'success',
           title: 'Enviado',
-          description: 'Insumo Editado com sucesso',
+          description: 'Unidade Editada com sucesso',
         });
       } catch (error) {
         console.error(error);
         Notification({
           type: 'error',
           title: 'Erro',
-          description: 'Não foi possível Editar o Insumo',
+          description: 'Não foi possível Editar a unidade',
         });
         setLoading(false);
       }
     } else {
       try {
-        if (
-          name === '' ||
-          code === '' ||
-          idCategory === '' ||
-          idUnitMeasure === '' ||
-          coefficient === ''
-        ) {
+        if (name === '' || abbreviation === '') {
           setLoading(false);
           return Notification({
             type: 'error',
             title: 'Erro',
-            description:
-              'Não foi possível cadastrar o Insumo, existem campos vazios',
+            description: 'Não foi possível cadastrar a unidade',
           });
         }
-
         const data = {
           name: name,
-          code: code,
-          category_id: idCategory,
-          unit_of_measurement_id: idUnitMeasure,
-          coefficient: coefficient,
+          abbreviation: abbreviation,
         };
-
-        //setLoading(true);
-        const response = await api.post('/warehouse/raw-material/', data);
-        console.log(response.data);
-
+        setLoading(true);
+        const response = await api.post('/warehouse/unit-measurement', data);
         setLoading(false);
-
         Notification({
           type: 'success',
           title: 'Enviado',
-          description: 'Insumo Cadastrado com sucesso',
+          description: 'Unidade Cadastrada com sucesso',
         });
 
-        const newInsRegistered = response.data;
-        rawMaterial.push(newInsRegistered);
+        const newUnityRegistered = response.data;
+
+        itens.push(newUnityRegistered);
         setIsModalOpen(false);
       } catch (error) {
         console.error(error);
         Notification({
           type: 'error',
           title: 'Erro',
-          description: 'Não foi possível cadastrar o Insumo',
+          description: 'Não foi possível cadastrar a unidade',
         });
         setLoading(false);
       }
     }
     setName('');
     setId('');
+    setAbbreviation('');
   }
 
   async function handleDelete(id: string) {
     try {
-      await api.delete(`/warehouse/raw-material/${id}`);
+      await api.delete(`/warehouse/unit-measurement/${id}`);
 
-      const filterCategories = rawMaterial.filter((iten) => {
+      const filterUnitsMeasurement = unitsMeasurements.filter((iten) => {
         if (iten.id !== id) {
           return iten;
         }
       });
 
-      setRawMaterials(filterCategories);
+      setUnitsMeasurements(filterUnitsMeasurement);
       Notification({
         type: 'success',
         title: 'Sucesso',
@@ -207,20 +163,11 @@ export default function rawMaterial({
     }
   }
 
-  async function handleEdit(data: IRawMaterial) {
-    console.log(data);
-    setId(data.id);
-    setName(data.name);
-    setCode(data.code);
-
-    const response = await api.get(`/warehouse/raw-material/${data.id}`);
-    console.log(response.data);
-
-    setIdCategory(response.data.category_id);
-    setIdUnitMeasure(response.data.unit_of_measurement_id);
-    setIsModalOpen(true);
-  }
-
+  const getRandomuserParams = (params) => ({
+    results: params.pagination.pageSize,
+    page: params.pagination.current,
+    ...params,
+  });
   class SearchTable extends React.Component {
     state = {
       searchText: '',
@@ -315,43 +262,24 @@ export default function rawMaterial({
     render() {
       const columns = [
         {
-          title: 'INS',
-          dataIndex: 'code',
-          key: 'code',
-          width: '20%',
-          ...this.getColumnSearchProps('code'),
-          sorter: (a, b) => a.code.length - b.code.length,
-        },
-        {
           title: 'Descrição',
           dataIndex: 'name',
           key: 'name',
-          width: '30%',
-          ...this.getColumnSearchProps('ins'),
-          sorter: (a, b) => a.ins.length - b.ins.length,
-        },
-
-        {
-          title: 'Un.Medida',
-          dataIndex: 'unit_of_measurement_id',
-          key: 'unit_of_measurement_id',
           width: '20%',
-          ...this.getColumnSearchProps('unit_of_measurement_id'),
-          sorter: (a, b) =>
-            a.unit_of_measurement_id.length - b.unit_of_measurement_id.length,
+          ...this.getColumnSearchProps('name'),
+          sorter: (a, b) => a.name.length - b.name.length,
         },
         {
-          title: 'Criado Em',
-          dataIndex: 'created_at',
-          key: 'created_at',
-          width: '30%',
-          ...this.getColumnSearchProps('created_at'),
-          sorter: (a, b) => a.created_at.length - b.created_at.length,
-        },
+          title: 'Unidade',
+          dataIndex: 'abbreviation',
 
+          key: 'abbreviation',
+          ...this.getColumnSearchProps('abbreviation'),
+          sorter: (a, b) => a.abbreviation.length - b.abbreviation.length,
+        },
         {
           title: 'Operação',
-          key: 'operation',
+          key: 'aaa',
           render: (record) => {
             return (
               <>
@@ -375,9 +303,10 @@ export default function rawMaterial({
           },
         },
       ];
+
       return (
         <>
-          <Table columns={columns} dataSource={rawMaterials} />
+          <Table columns={columns} dataSource={unitsMeasurements} />
         </>
       );
     }
@@ -393,14 +322,14 @@ export default function rawMaterial({
               icon={<PlusOutlined style={{ fontSize: '16px' }} />}
               onClick={() => setIsModalOpen(true)}
             >
-              Cadastrar Insumo
+              Cadastrar Unidade
             </Button>
           </Col>
         </Row>
         <SearchTable />
       </Layout>
       <Modal
-        title="Cadastro de Insumos"
+        title="Cadastro de Unidade de Medida"
         visible={isModalOpen}
         onCancel={handleClose}
         footer={[
@@ -418,114 +347,40 @@ export default function rawMaterial({
         ]}
       >
         <Form.Item
-          key="insFormItem"
           labelCol={{ span: 23 }}
-          label="Código INS"
+          label="Descrição"
           labelAlign={'left'}
           style={{ backgroundColor: 'white', fontWeight: 'bold' }}
           required
         >
           <Input
-            key="insName"
+            key="descriptionName"
             size="large"
             style={{ width: 400, marginBottom: '10px' }}
-            placeholder="Digite o código INS, ex: "
-            value={code}
-            onChange={(e) => {
-              setCode(e.target.value);
-            }}
-          />
-        </Form.Item>
-        <Form.Item
-          key="Categoria"
-          labelCol={{ span: 23 }}
-          label="Categoria:"
-          labelAlign={'left'}
-          style={{ backgroundColor: 'white', fontWeight: 'bold' }}
-          required
-        >
-          <Select
-            showSearch
-            size="large"
-            style={{ width: 400, marginBottom: '10px' }}
-            placeholder="Escolha a categoria"
-            onChange={(e) => {
-              setIdCategory(e.toString());
-            }}
-          >
-            {categories.map((categorie) => (
-              <>
-                <Option key={categorie.id} value={categorie.id}>
-                  {categorie.name}
-                </Option>
-              </>
-            ))}
-          </Select>
-        </Form.Item>
-        <Form.Item
-          key="descriptionFormItem"
-          labelCol={{ span: 23 }}
-          label="Descrição:"
-          labelAlign={'left'}
-          style={{ backgroundColor: 'white', fontWeight: 'bold' }}
-          required
-        >
-          <Input
-            key="descriptionIns"
-            size="large"
-            style={{ width: 400, marginBottom: '10px' }}
-            placeholder="Descrição do INS"
+            placeholder="Descrição da unidade, ex: Litro, Metros Quadrados, ..."
             value={name}
             onChange={(e) => {
               setName(e.target.value);
             }}
           />
         </Form.Item>
+
         <Form.Item
-          key="Unidade de Medida"
           labelCol={{ span: 23 }}
-          label="Unidade de Medida:"
-          labelAlign={'left'}
-          style={{ backgroundColor: 'white', fontWeight: 'bold' }}
-          required
-        >
-          <Select
-            showSearch
-            size="large"
-            style={{ width: 400, marginBottom: '10px' }}
-            placeholder="Select a person"
-            optionFilterProp="children"
-            onChange={(e) => {
-              setIdUnitMeasure(e.toString());
-            }}
-          >
-            {unitMeasures.map((unit) => (
-              <>
-                <Option key={unit.id} value={unit.id}>
-                  {unit.name}
-                </Option>
-              </>
-            ))}
-          </Select>
-        </Form.Item>
-        <Form.Item
-          key="fatorDeConversão"
-          labelCol={{ span: 23 }}
-          label="Fator de Conversão:"
+          label="Abreviação:"
           labelAlign={'left'}
           style={{ backgroundColor: 'white', fontWeight: 'bold' }}
           required
         >
           <Input
-            key="descriptionIns"
+            key="abbreviation"
             size="large"
             style={{ width: 400, marginBottom: '10px' }}
-            placeholder="Digite o Fator"
-            value={coefficient}
+            placeholder="Digite a Abreviação, ex: L, M²"
+            value={abbreviation}
             onChange={(e) => {
-              setCoefficient(e.target.value);
+              setAbbreviation(e.target.value);
             }}
-            pattern="[0-9]+$"
           />
         </Form.Item>
       </Modal>
@@ -535,19 +390,11 @@ export default function rawMaterial({
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   try {
-    const rawMaterialResponse = await api.get('/warehouse/raw-material');
-    const unMeaseureResponse = await api.get('/warehouse/unit-measurement');
-    const categorieResponse = await api.get('/warehouse/categories');
-
-    const rawMaterialData = rawMaterialResponse.data;
-    const unMeasureData = unMeaseureResponse.data;
-    const categorieData = categorieResponse.data;
+    const { data } = await api.get('/warehouse/unit-measurement');
 
     return {
       props: {
-        rawMaterial: rawMaterialData,
-        unMeasure: unMeasureData,
-        categorie: categorieData,
+        itens: data,
       },
     };
   } catch (error) {
