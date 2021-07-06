@@ -27,31 +27,30 @@ import { GetServerSideProps } from 'next';
 
 const { Option } = Select;
 
-interface ISupplier {
+interface IWarehouse {
   id: string;
   name: string;
-  email: string;
-  phone: string;
+  place: string;
 }
 
 interface IProp {
-  supplier: ISupplier[];
+  warehouse: IWarehouse[];
 }
+export default function warehouse({ warehouse }: IProp) {
+  console.log(warehouse);
 
-export default function supplier({ supplier }: IProp) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [suppliers, setSuppliers] = useState(supplier);
+  const [warehouses, setWarehouses] = useState(warehouse);
   const [id, setId] = useState('');
   const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
+  const [place, setPlace] = useState('');
 
   function handleClose() {
     setId('');
     setName('');
-    setEmail('');
-    setPhone('');
+    setPlace('');
+    setLoading(false);
 
     setIsModalOpen(false);
   }
@@ -61,7 +60,7 @@ export default function supplier({ supplier }: IProp) {
 
     if (id) {
       try {
-        if (name === '' || email === '' || phone === '' || id === '') {
+        if (name === '' || place === '') {
           setLoading(false);
           return Notification({
             type: 'error',
@@ -71,11 +70,10 @@ export default function supplier({ supplier }: IProp) {
         }
         const data = {
           name: name,
-          email: email,
-          phone: phone,
+          place: place,
         };
         setLoading(true);
-        await api.put(`/warehouse/supllier/${id}`, data);
+        await api.put(`/warehouse/warehouse/${id}`, data);
         setLoading(false);
         Notification({
           type: 'success',
@@ -87,12 +85,12 @@ export default function supplier({ supplier }: IProp) {
         return Notification({
           type: 'error',
           title: 'Erro',
-          description: 'Não foi possível editar o Fornecedor',
+          description: 'Não foi possível editar o Armazém',
         });
       }
     } else {
       try {
-        if (name === '' || email === '' || phone === '') {
+        if (name === '' || place === '') {
           setLoading(false);
           return Notification({
             type: 'error',
@@ -102,66 +100,36 @@ export default function supplier({ supplier }: IProp) {
         }
         const data = {
           name: name,
-          email: email,
-          phone: phone,
+          place: place,
         };
         setLoading(true);
-        const response = await api.post(`/warehouse/supplier`, data);
+        const response = await api.post(`/warehouse/warehouse`, data);
         setLoading(false);
 
-        const newSupplierRegistered = response.data;
+        const newWarehouseRegistered = response.data;
 
-        suppliers.push(newSupplierRegistered);
+        warehouses.push(newWarehouseRegistered);
         setIsModalOpen(false);
         Notification({
           type: 'success',
           title: 'Enviado',
-          description: 'Fornecedor Criado com sucesso',
+          description: 'Armazém Criado com sucesso',
         });
       } catch (error) {
         console.log(error);
         return Notification({
           type: 'error',
           title: 'Erro',
-          description: 'Não foi possível cadastrar o Fornecedor',
+          description: 'Não foi possível cadastrar o Armazém',
         });
       }
     }
   }
 
-  async function handleDelete(id: string) {
-    try {
-      await api.delete(`/warehouse/supplier/${id}`);
+  async function handleDelete(id: string) {}
 
-      const filterSuppliers = suppliers.filter((iten) => {
-        if (iten.id !== id) {
-          return iten;
-        }
-      });
-
-      setSuppliers(filterSuppliers);
-      Notification({
-        type: 'success',
-        title: 'Sucesso',
-        description: 'Fornecedor Deletado com sucesso',
-      });
-    } catch (error) {
-      console.error(error);
-      Notification({
-        type: 'error',
-        title: 'Erro',
-        description: 'Não foi possível Deletar o fornecedor',
-      });
-    }
-  }
-
-  async function handleEdit(data: ISupplier) {
-    setName(data.name);
-    setId(data.id);
-    setPhone(data.phone);
-    setEmail(data.email);
-
-    setIsModalOpen(true);
+  async function handleEdit(data: IWarehouse) {
+    console.log(data);
   }
 
   class SearchTable extends React.Component {
@@ -259,35 +227,32 @@ export default function supplier({ supplier }: IProp) {
       const columns = [
         {
           title: 'Nome',
-          dataIndex: 'name',
-          key: 'name',
+          dataIndex: 'WarehouseWarehouse_name',
+          key: 'WarehouseWarehouse_name',
           width: '30%',
-          ...this.getColumnSearchProps('name'),
-          sorter: (a, b) => a.name.length - b.name.length,
+          ...this.getColumnSearchProps('WarehouseWarehouse_name'),
+          sorter: (a, b) =>
+            a.WarehouseWarehouse_name.length - b.WarehouseWarehouse_name.length,
         },
         {
-          title: 'Email',
-          dataIndex: 'email',
-          key: 'email',
+          title: 'Localizado em:',
+          dataIndex: 'WarehouseWarehouse_place',
+          key: 'WarehouseWarehouse_place',
           width: '30%',
-          ...this.getColumnSearchProps('email'),
-          sorter: (a, b) => a.email.length - b.email.length,
-        },
-        {
-          title: 'Telefone',
-          dataIndex: 'phone',
-          key: 'phone',
-          width: '20%',
-          ...this.getColumnSearchProps('created_at'),
-          sorter: (a, b) => a.phone.length - b.phone.length,
+          ...this.getColumnSearchProps('WarehouseWarehouse_place'),
+          sorter: (a, b) =>
+            a.WarehouseWarehouse_place.length -
+            b.WarehouseWarehouse_place.length,
         },
         {
           title: 'Criado Em',
-          dataIndex: 'created_at',
-          key: 'created_at',
-          width: '40%',
-          ...this.getColumnSearchProps('created_at'),
-          sorter: (a, b) => a.created_at.length - b.created_at.length,
+          dataIndex: 'WarehouseWarehouse_created_at',
+          key: 'WarehouseWarehouse_created_at',
+          width: '30%',
+          ...this.getColumnSearchProps('WarehouseWarehouse_created_at'),
+          sorter: (a, b) =>
+            a.WarehouseWarehouse_created_at.length -
+            b.WarehouseWarehouse_created_at.length,
         },
         {
           title: 'Operação',
@@ -315,7 +280,7 @@ export default function supplier({ supplier }: IProp) {
           },
         },
       ];
-      return <Table columns={columns} dataSource={suppliers} />;
+      return <Table columns={columns} dataSource={warehouses} />;
     }
   }
 
@@ -330,7 +295,7 @@ export default function supplier({ supplier }: IProp) {
               icon={<PlusOutlined style={{ fontSize: '16px' }} />}
               onClick={() => setIsModalOpen(true)}
             >
-              Cadastrar Fornecedor
+              Cadastrar Almoxarifado
             </Button>
           </Col>
         </Row>
@@ -363,10 +328,10 @@ export default function supplier({ supplier }: IProp) {
           required
         >
           <Input
-            key="supplierName"
+            key="warehouseName"
             size="large"
             style={{ width: 400, marginBottom: '10px' }}
-            placeholder="Digite o Nome do Fornecedor"
+            placeholder="Digite o Nome do Almoxarifado"
             value={name}
             onChange={(e) => {
               setName(e.target.value);
@@ -375,37 +340,19 @@ export default function supplier({ supplier }: IProp) {
         </Form.Item>
         <Form.Item
           labelCol={{ span: 23 }}
-          label="Email:"
+          label="Localização:"
           labelAlign={'left'}
           style={{ backgroundColor: 'white', fontWeight: 'bold' }}
           required
         >
           <Input
-            key="supplierEmail"
+            key="warehousePlace"
             size="large"
             style={{ width: 400, marginBottom: '10px' }}
-            placeholder="Digite o Email do Fornecedor"
-            value={email}
+            placeholder="Digite a localização, ex: Matriz, chaparia, etc..."
+            value={place}
             onChange={(e) => {
-              setEmail(e.target.value);
-            }}
-          />
-        </Form.Item>
-        <Form.Item
-          labelCol={{ span: 23 }}
-          label="Telefone:"
-          labelAlign={'left'}
-          style={{ backgroundColor: 'white', fontWeight: 'bold' }}
-          required
-        >
-          <Input
-            key="supplierPhone"
-            size="large"
-            style={{ width: 400, marginBottom: '10px' }}
-            placeholder="Digite o Telefone do Fornecedor"
-            value={phone}
-            onChange={(e) => {
-              setPhone(e.target.value);
+              setPlace(e.target.value);
             }}
           />
         </Form.Item>
@@ -416,18 +363,18 @@ export default function supplier({ supplier }: IProp) {
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   try {
-    const { data } = await api.get('/warehouse/supplier');
+    const { data } = await api.get('/warehouse/warehouse');
 
     return {
       props: {
-        supplier: data,
+        warehouse: data,
       },
     };
   } catch (error) {
     console.error(error);
     return {
       props: {
-        categorie: [{ id: '', name: '', email: '', phone: '' }],
+        categorie: [{ id: '', name: '', place: '' }],
       },
     };
   }

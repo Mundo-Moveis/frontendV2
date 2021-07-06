@@ -72,6 +72,11 @@ export default function Sidebar({ screen, display }: SidebarProps) {
                   title="Cadastros"
                   icon={<PlusOutlined />}
                 >
+                  <Menu.Item key="Almoxarifado" icon={<RightSquareOutlined />}>
+                    <Link href="/Warehouse/Register/warehouse">
+                      Almoxarifado
+                    </Link>
+                  </Menu.Item>
                   <Menu.Item key="Un.Medidas" icon={<RightSquareOutlined />}>
                     <Link href="/Warehouse/Register/unityMeasure">
                       Un. Medidas
