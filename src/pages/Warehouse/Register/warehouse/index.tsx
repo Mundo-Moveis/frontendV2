@@ -92,7 +92,7 @@ export default function warehouse({ warehouse }: IProp) {
         Notification({
           type: 'success',
           title: 'Enviado',
-          description: 'Fornecedor Editado com sucesso',
+          description: 'Almoxarifado Editado com sucesso',
         });
       } catch (error) {
         console.log(error);
@@ -155,14 +155,14 @@ export default function warehouse({ warehouse }: IProp) {
       Notification({
         type: 'success',
         title: 'Sucesso',
-        description: 'Fornecedor Deletado com sucesso',
+        description: 'Almoxarifado Deletado com sucesso',
       });
     } catch (error) {
       console.error(error);
       Notification({
         type: 'error',
         title: 'Erro',
-        description: 'Não foi possível Deletar o fornecedor',
+        description: 'Não foi possível Deletar o Almoxarifado',
       });
     }
   }
@@ -346,7 +346,7 @@ export default function warehouse({ warehouse }: IProp) {
       </Layout>
 
       <Modal
-        title="Cadastro de Categoria"
+        title="Cadastro de Almoxarifado"
         visible={isModalOpen}
         onCancel={handleClose}
         footer={[
@@ -417,7 +417,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     console.error(error);
     return {
       props: {
-        categorie: [{ id: '', name: '', place: '' }],
+        warehouse: [{ id: '', name: '', place: '' }],
       },
     };
   }

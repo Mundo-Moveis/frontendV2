@@ -400,6 +400,7 @@ export default function rawMaterial({
         <SearchTable />
       </Layout>
       <Modal
+        width={900}
         title="Cadastro de Insumos"
         visible={isModalOpen}
         onCancel={handleClose}
@@ -417,117 +418,129 @@ export default function rawMaterial({
           </Button>,
         ]}
       >
-        <Form.Item
-          key="insFormItem"
-          labelCol={{ span: 23 }}
-          label="Código INS"
-          labelAlign={'left'}
-          style={{ backgroundColor: 'white', fontWeight: 'bold' }}
-          required
-        >
-          <Input
-            key="insName"
-            size="large"
-            style={{ width: 400, marginBottom: '10px' }}
-            placeholder="Digite o código INS, ex: "
-            value={code}
-            onChange={(e) => {
-              setCode(e.target.value);
-            }}
-          />
-        </Form.Item>
-        <Form.Item
-          key="Categoria"
-          labelCol={{ span: 23 }}
-          label="Categoria:"
-          labelAlign={'left'}
-          style={{ backgroundColor: 'white', fontWeight: 'bold' }}
-          required
-        >
-          <Select
-            showSearch
-            size="large"
-            style={{ width: 400, marginBottom: '10px' }}
-            placeholder="Escolha a categoria"
-            onChange={(e) => {
-              setIdCategory(e.toString());
-            }}
+        <Row gutter={5}>
+          <Col span={12}>
+            <Form.Item
+              key="insFormItem"
+              labelCol={{ span: 23 }}
+              label="Código INS"
+              labelAlign={'left'}
+              style={{ backgroundColor: 'white', fontWeight: 'bold' }}
+              required
+            >
+              <Input
+                key="insName"
+                size="large"
+                style={{ width: 400, marginBottom: '10px' }}
+                placeholder="Digite o código INS, ex: "
+                value={code}
+                onChange={(e) => {
+                  setCode(e.target.value);
+                }}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item
+              key="descriptionFormItem"
+              labelCol={{ span: 23 }}
+              label="Descrição:"
+              labelAlign={'left'}
+              style={{ backgroundColor: 'white', fontWeight: 'bold' }}
+              required
+            >
+              <Input
+                key="descriptionIns"
+                size="large"
+                style={{ width: 400, marginBottom: '10px' }}
+                placeholder="Descrição do INS"
+                value={name}
+                onChange={(e) => {
+                  setName(e.target.value);
+                }}
+              />
+            </Form.Item>
+          </Col>
+        </Row>
+        <Row gutter={5}>
+          <Col span={12}>
+            <Form.Item
+              key="Categoria"
+              labelCol={{ span: 23 }}
+              label="Categoria:"
+              labelAlign={'left'}
+              style={{ backgroundColor: 'white', fontWeight: 'bold' }}
+              required
+            >
+              <Select
+                showSearch
+                size="large"
+                style={{ width: 400, marginBottom: '10px' }}
+                placeholder="Escolha a categoria"
+                onChange={(e) => {
+                  setIdCategory(e.toString());
+                }}
+              >
+                {categories.map((categorie) => (
+                  <>
+                    <Option key={categorie.id} value={categorie.id}>
+                      {categorie.name}
+                    </Option>
+                  </>
+                ))}
+              </Select>
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item
+              key="Unidade de Medida"
+              labelCol={{ span: 23 }}
+              label="Unidade de Medida:"
+              labelAlign={'left'}
+              style={{ backgroundColor: 'white', fontWeight: 'bold' }}
+              required
+            >
+              <Select
+                showSearch
+                size="large"
+                style={{ width: 400, marginBottom: '10px' }}
+                placeholder="Select a person"
+                optionFilterProp="children"
+                onChange={(e) => {
+                  setIdUnitMeasure(e.toString());
+                }}
+              >
+                {unitMeasures.map((unit) => (
+                  <>
+                    <Option key={unit.id} value={unit.id}>
+                      {unit.name}
+                    </Option>
+                  </>
+                ))}
+              </Select>
+            </Form.Item>
+          </Col>
+          <Form.Item
+            key="fatorDeConversão"
+            labelCol={{ span: 23 }}
+            label="Fator de Conversão:"
+            labelAlign={'left'}
+            style={{ backgroundColor: 'white', fontWeight: 'bold' }}
+            required
           >
-            {categories.map((categorie) => (
-              <>
-                <Option key={categorie.id} value={categorie.id}>
-                  {categorie.name}
-                </Option>
-              </>
-            ))}
-          </Select>
-        </Form.Item>
-        <Form.Item
-          key="descriptionFormItem"
-          labelCol={{ span: 23 }}
-          label="Descrição:"
-          labelAlign={'left'}
-          style={{ backgroundColor: 'white', fontWeight: 'bold' }}
-          required
-        >
-          <Input
-            key="descriptionIns"
-            size="large"
-            style={{ width: 400, marginBottom: '10px' }}
-            placeholder="Descrição do INS"
-            value={name}
-            onChange={(e) => {
-              setName(e.target.value);
-            }}
-          />
-        </Form.Item>
-        <Form.Item
-          key="Unidade de Medida"
-          labelCol={{ span: 23 }}
-          label="Unidade de Medida:"
-          labelAlign={'left'}
-          style={{ backgroundColor: 'white', fontWeight: 'bold' }}
-          required
-        >
-          <Select
-            showSearch
-            size="large"
-            style={{ width: 400, marginBottom: '10px' }}
-            placeholder="Select a person"
-            optionFilterProp="children"
-            onChange={(e) => {
-              setIdUnitMeasure(e.toString());
-            }}
-          >
-            {unitMeasures.map((unit) => (
-              <>
-                <Option key={unit.id} value={unit.id}>
-                  {unit.name}
-                </Option>
-              </>
-            ))}
-          </Select>
-        </Form.Item>
-        <Form.Item
-          key="fatorDeConversão"
-          labelCol={{ span: 23 }}
-          label="Fator de Conversão:"
-          labelAlign={'left'}
-          style={{ backgroundColor: 'white', fontWeight: 'bold' }}
-          required
-        >
-          <Input
-            key="descriptionIns"
-            size="large"
-            style={{ width: 400, marginBottom: '10px' }}
-            placeholder="Digite o Fator"
-            value={coefficient}
-            onChange={(e) => {
-              setCoefficient(e.target.value);
-            }}
-            pattern="[0-9]+$"
-          />
-        </Form.Item>
+            <Input
+              key="descriptionIns"
+              size="large"
+              style={{ width: 400, marginBottom: '10px' }}
+              placeholder="Digite o Fator"
+              value={coefficient}
+              onChange={(e) => {
+                setCoefficient(e.target.value);
+              }}
+              pattern="[0-9]+$"
+            />
+          </Form.Item>
+        </Row>
       </Modal>
     </div>
   );
