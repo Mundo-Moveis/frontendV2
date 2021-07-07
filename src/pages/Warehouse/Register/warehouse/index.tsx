@@ -37,7 +37,7 @@ interface IProp {
   warehouse: IWarehouse[];
 }
 export default function warehouse({ warehouse }: IProp) {
-  console.log(warehouse);
+  console.error(warehouse);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -95,7 +95,7 @@ export default function warehouse({ warehouse }: IProp) {
           description: 'Almoxarifado Editado com sucesso',
         });
       } catch (error) {
-        console.log(error);
+        console.error(error);
         return Notification({
           type: 'error',
           title: 'Erro',
@@ -149,7 +149,6 @@ export default function warehouse({ warehouse }: IProp) {
           return iten;
         }
       });
-      console.log('filtered: ', filterWarehouses);
 
       setWarehouses(filterWarehouses);
       Notification({
