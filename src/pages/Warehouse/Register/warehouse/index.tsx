@@ -28,9 +28,9 @@ import { GetServerSideProps } from 'next';
 const { Option } = Select;
 
 interface IWarehouse {
-  id: string;
-  name: string;
-  place: string;
+  WarehouseWarehouse_id: string;
+  WarehouseWarehouse_name: string;
+  WarehouseWarehouse_place: string;
 }
 
 interface IProp {
@@ -73,8 +73,22 @@ export default function warehouse({ warehouse }: IProp) {
           place: place,
         };
         setLoading(true);
-        await api.put(`/warehouse/warehouse/${id}`, data);
+
+        const response = await api.put(`/warehouse/warehouse/${id}`, data);
+
+        const filterWarehouse = warehouses.filter((iten) => {
+          if (iten.WarehouseWarehouse_id !== id) {
+            return iten;
+          }
+        });
+
+        filterWarehouse.push(response.data);
+
+        setWarehouses(filterWarehouse);
+
         setLoading(false);
+        setIsModalOpen(false);
+        handleClose();
         Notification({
           type: 'success',
           title: 'Enviado',
@@ -116,7 +130,7 @@ export default function warehouse({ warehouse }: IProp) {
           description: 'Armazém Criado com sucesso',
         });
       } catch (error) {
-        console.log(error);
+        console.error(error);
         return Notification({
           type: 'error',
           title: 'Erro',
@@ -126,10 +140,39 @@ export default function warehouse({ warehouse }: IProp) {
     }
   }
 
-  async function handleDelete(id: string) {}
+  async function handleDelete(id: string) {
+    try {
+      await api.delete(`/warehouse/warehouse/${id}`);
 
-  async function handleEdit(data: IWarehouse) {
-    console.log(data);
+      const filterWarehouses = warehouses.filter((iten) => {
+        if (iten.WarehouseWarehouse_id !== id) {
+          return iten;
+        }
+      });
+      console.log('filtered: ', filterWarehouses);
+
+      setWarehouses(filterWarehouses);
+      Notification({
+        type: 'success',
+        title: 'Sucesso',
+        description: 'Fornecedor Deletado com sucesso',
+      });
+    } catch (error) {
+      console.error(error);
+      Notification({
+        type: 'error',
+        title: 'Erro',
+        description: 'Não foi possível Deletar o fornecedor',
+      });
+    }
+  }
+
+  async function handleEdit(data) {
+    setName(data.WarehouseWarehouse_name);
+    setPlace(data.WarehouseWarehouse_place);
+    setId(data.WarehouseWarehouse_id);
+
+    setIsModalOpen(true);
   }
 
   class SearchTable extends React.Component {
@@ -267,7 +310,7 @@ export default function warehouse({ warehouse }: IProp) {
                 {/* onClick={() => handleEdit(record)} */}
                 <Popconfirm
                   title="Confirmar remoção?"
-                  onConfirm={() => handleDelete(record.id)}
+                  onConfirm={() => handleDelete(record.WarehouseWarehouse_id)}
                 >
                   <a href="#" style={{ marginLeft: 20 }}>
                     <DeleteOutlined

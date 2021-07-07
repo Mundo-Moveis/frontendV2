@@ -103,7 +103,6 @@ export default function supplier({ supplier }: IProp) {
         const data = {
           name: name,
           email: email,
-          phone: phone,
         };
         setLoading(true);
         const response = await api.post(`/warehouse/supplier`, data);
@@ -320,7 +319,7 @@ export default function supplier({ supplier }: IProp) {
   }
 
   return (
-    <div>
+    <>
       <Layout>
         <Row justify="end">
           <Col>
@@ -410,7 +409,7 @@ export default function supplier({ supplier }: IProp) {
           />
         </Form.Item>
       </Modal>
-    </div>
+    </>
   );
 }
 
