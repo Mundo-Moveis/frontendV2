@@ -19,7 +19,7 @@ import {
 } from 'antd';
 import React, { FormEvent, useState } from 'react';
 import Highlighter from 'react-highlight-words';
-import styles from './styles/style.module.scss';
+import styles from '../../../../styles/app.module.scss';
 
 import { Notification } from '../../../../components/Notification';
 import { api } from '../../../../services/api';
@@ -144,8 +144,6 @@ export default function position({ position, warehouse }: IProp) {
   }
 
   function handleEdit(data) {
-    console.log(data);
-
     setId(data.id);
     setName(data.name);
     setWarehouseId(data.warehouse_id);

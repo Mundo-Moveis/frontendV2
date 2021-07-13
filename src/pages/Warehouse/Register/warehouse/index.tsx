@@ -19,7 +19,7 @@ import {
 } from 'antd';
 import React, { FormEvent, useState } from 'react';
 import Highlighter from 'react-highlight-words';
-import styles from './styles/style.module.scss';
+import styles from '../../../../styles/app.module.scss';
 
 import { Notification } from '../../../../components/Notification';
 import { api } from '../../../../services/api';
@@ -28,9 +28,9 @@ import { GetServerSideProps } from 'next';
 const { Option } = Select;
 
 interface IWarehouse {
-  WarehouseWarehouse_id: string;
-  WarehouseWarehouse_name: string;
-  WarehouseWarehouse_place: string;
+  id: string;
+  name: string;
+  place: string;
 }
 
 interface IProp {
@@ -77,7 +77,7 @@ export default function warehouse({ warehouse }: IProp) {
         const response = await api.put(`/warehouse/warehouse/${id}`, data);
 
         const filterWarehouse = warehouses.filter((iten) => {
-          if (iten.WarehouseWarehouse_id !== id) {
+          if (iten.id !== id) {
             return iten;
           }
         });
@@ -145,7 +145,7 @@ export default function warehouse({ warehouse }: IProp) {
       await api.delete(`/warehouse/warehouse/${id}`);
 
       const filterWarehouses = warehouses.filter((iten) => {
-        if (iten.WarehouseWarehouse_id !== id) {
+        if (iten.id !== id) {
           return iten;
         }
       });
@@ -167,9 +167,9 @@ export default function warehouse({ warehouse }: IProp) {
   }
 
   async function handleEdit(data) {
-    setName(data.WarehouseWarehouse_name);
-    setPlace(data.WarehouseWarehouse_place);
-    setId(data.WarehouseWarehouse_id);
+    setName(data.name);
+    setPlace(data.place);
+    setId(data.id);
 
     setIsModalOpen(true);
   }
@@ -269,32 +269,27 @@ export default function warehouse({ warehouse }: IProp) {
       const columns = [
         {
           title: 'Nome',
-          dataIndex: 'WarehouseWarehouse_name',
-          key: 'WarehouseWarehouse_name',
+          dataIndex: 'name',
+          key: 'name',
           width: '30%',
-          ...this.getColumnSearchProps('WarehouseWarehouse_name'),
-          sorter: (a, b) =>
-            a.WarehouseWarehouse_name.length - b.WarehouseWarehouse_name.length,
+          ...this.getColumnSearchProps('name'),
+          sorter: (a, b) => a.name.length - b.name.length,
         },
         {
           title: 'Localizado em:',
-          dataIndex: 'WarehouseWarehouse_place',
-          key: 'WarehouseWarehouse_place',
+          dataIndex: 'place',
+          key: 'place',
           width: '30%',
-          ...this.getColumnSearchProps('WarehouseWarehouse_place'),
-          sorter: (a, b) =>
-            a.WarehouseWarehouse_place.length -
-            b.WarehouseWarehouse_place.length,
+          ...this.getColumnSearchProps('place'),
+          sorter: (a, b) => a.place.length - b.place.length,
         },
         {
           title: 'Criado Em',
-          dataIndex: 'WarehouseWarehouse_created_at',
-          key: 'WarehouseWarehouse_created_at',
+          dataIndex: 'created_at',
+          key: 'created_at',
           width: '30%',
-          ...this.getColumnSearchProps('WarehouseWarehouse_created_at'),
-          sorter: (a, b) =>
-            a.WarehouseWarehouse_created_at.length -
-            b.WarehouseWarehouse_created_at.length,
+          ...this.getColumnSearchProps('created_at'),
+          sorter: (a, b) => a.created_at.length - b.created_at.length,
         },
         {
           title: 'Operação',
@@ -309,7 +304,7 @@ export default function warehouse({ warehouse }: IProp) {
                 {/* onClick={() => handleEdit(record)} */}
                 <Popconfirm
                   title="Confirmar remoção?"
-                  onConfirm={() => handleDelete(record.WarehouseWarehouse_id)}
+                  onConfirm={() => handleDelete(record.id)}
                 >
                   <a href="#" style={{ marginLeft: 20 }}>
                     <DeleteOutlined

@@ -21,7 +21,7 @@ import {
 } from 'antd';
 import Highlighter from 'react-highlight-words';
 
-import styles from './styles/style.module.scss';
+import styles from '../../../../styles/app.module.scss';
 
 import { Notification } from '../../../../components/Notification';
 import { api } from '../../../../services/api';

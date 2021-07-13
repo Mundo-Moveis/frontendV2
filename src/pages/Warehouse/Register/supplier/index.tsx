@@ -19,7 +19,7 @@ import {
 } from 'antd';
 import React, { FormEvent, useState } from 'react';
 import Highlighter from 'react-highlight-words';
-import styles from './styles/style.module.scss';
+import styles from '../../../../styles/app.module.scss';
 
 import { Notification } from '../../../../components/Notification';
 import { api } from '../../../../services/api';
@@ -83,7 +83,6 @@ export default function supplier({ supplier }: IProp) {
           description: 'Fornecedor Editado com sucesso',
         });
       } catch (error) {
-        console.log(error);
         return Notification({
           type: 'error',
           title: 'Erro',
@@ -118,7 +117,7 @@ export default function supplier({ supplier }: IProp) {
           description: 'Fornecedor Criado com sucesso',
         });
       } catch (error) {
-        console.log(error);
+        console.error(error);
         return Notification({
           type: 'error',
           title: 'Erro',
