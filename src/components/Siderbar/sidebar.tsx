@@ -97,7 +97,7 @@ export default function Sidebar({ screen, display }: SidebarProps) {
                   </Menu.Item>
 
                   <Menu.Item key="Posições" icon={<RightSquareOutlined />}>
-                    <Link href="/wmsRawPosition">Posições</Link>
+                    <Link href="/Warehouse/Register/position">Posições</Link>
                   </Menu.Item>
                 </SubMenu>
 

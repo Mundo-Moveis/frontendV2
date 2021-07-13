@@ -152,7 +152,7 @@ export default function rawMaterial({
           coefficient: coefficient,
         };
 
-        //setLoading(true);
+        setLoading(true);
         const response = await api.post('/warehouse/raw-material/', data);
         console.log(response.data);
 
@@ -166,7 +166,8 @@ export default function rawMaterial({
 
         const newInsRegistered = response.data;
         rawMaterial.push(newInsRegistered);
-        setIsModalOpen(false);
+
+        handleClose();
       } catch (error) {
         console.error(error);
         Notification({
