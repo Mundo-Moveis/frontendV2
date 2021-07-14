@@ -107,7 +107,7 @@ export default function Sidebar({ screen, display }: SidebarProps) {
                   icon={<ShoppingCartOutlined />}
                 >
                   <Menu.Item key="Entradas" icon={<RightSquareOutlined />}>
-                    <Link href="/wmsRawEntry">Entradas</Link>
+                    <Link href="Warehouse/Operation/Receivement">Entradas</Link>
                   </Menu.Item>
 
                   <Menu.Item key="Armazenagens" icon={<RightSquareOutlined />}>

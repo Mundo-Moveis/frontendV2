@@ -4,6 +4,6 @@ export const api = axios.create({
   baseURL: 'http://localhost:3333/',
   headers: {
     authorization:
-      'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE2MjYxNzU2MDgsImV4cCI6MTYyNjI2MjAwOCwic3ViIjoiMTVkMjlmNmEtZjljZC00ZmQ2LWJiMTYtNjNhMGI1OTZiNWQ2In0.5bL00XmLVCzAeKnoSLWEfSk69IYnUr1ISRpucnXfEHA',
+      'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE2MjYyNjM5NzAsImV4cCI6MTYyNjM1MDM3MCwic3ViIjoiMTVkMjlmNmEtZjljZC00ZmQ2LWJiMTYtNjNhMGI1OTZiNWQ2In0.GLRjSISSeBWlg7KiKZE7XmkL6f-6Y8VOeTdPRAHMnZA',
   },
 });
