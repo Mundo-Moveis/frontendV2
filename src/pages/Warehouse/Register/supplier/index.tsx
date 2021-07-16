@@ -102,6 +102,7 @@ export default function supplier({ supplier }: IProp) {
         const data = {
           name: name,
           email: email,
+          phone: phone,
         };
         setLoading(true);
         const response = await api.post(`/warehouse/supplier`, data);

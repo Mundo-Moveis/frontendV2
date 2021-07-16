@@ -31,7 +31,6 @@ interface UnitMeasurement {
   id: string;
   name: string;
   abbreviation: string;
-  user_id: string;
 }
 interface props {
   itens: UnitMeasurement[];

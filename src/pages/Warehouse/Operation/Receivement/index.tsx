@@ -5,10 +5,12 @@ import {
   EditFilled,
   PlusOutlined,
   SearchOutlined,
+  MinusCircleOutlined,
 } from '@ant-design/icons';
 import {
   Button,
   Col,
+  Divider,
   Form,
   Input,
   Layout,
@@ -25,7 +27,7 @@ import styles from '../../../../styles/app.module.scss';
 
 import { Notification } from '../../../../components/Notification';
 import { api } from '../../../../services/api';
-import { GetServerSideProps } from 'next';
+import { GetServerSideProps, InferGetServerSidePropsType } from 'next';
 
 const { Option } = Select;
 
@@ -47,7 +49,9 @@ interface IProp {
   rawMaterial: IRawMaterial[];
 }
 
-export default function Receivment({ rawMaterial }: IProp) {
+export default function Receivment({
+      rawMaterial,
+    }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [description, setDescription] = useState('');
@@ -60,6 +64,20 @@ export default function Receivment({ rawMaterial }: IProp) {
 
   async function handleRegister(e: FormEvent) {}
   async function handleClose() {}
+  function onlyNumbers(e) {
+    console.log(e);
+
+    var charCode = e.charCode ? e.charCode : e.keyCode;
+    // charCode 8 = backspace
+    // charCode 9 = tab
+    if (charCode != 8 && charCode != 9) {
+      // charCode 48 equivale a 0
+      // charCode 57 equivale a 9
+      if (charCode < 48 || charCode > 57) {
+        return false;
+      }
+    }
+  }
 
   return (
     <div>
@@ -79,7 +97,7 @@ export default function Receivment({ rawMaterial }: IProp) {
         {/* <SearchTable /> */}
       </Layout>
       <Modal
-        width={1200}
+        width={900}
         title="Cadastro de Insumos"
         visible={true}
         onCancel={handleClose}
@@ -110,7 +128,6 @@ export default function Receivment({ rawMaterial }: IProp) {
               <Input
                 key="insName"
                 size="large"
-                style={{ width: 400, marginBottom: '10px' }}
                 placeholder="Digite o código INS, ex: "
                 onChange={(e) => {
                   console.log(e);
@@ -120,7 +137,7 @@ export default function Receivment({ rawMaterial }: IProp) {
           </Col>
           <Col span={8}>
             <Form.Item
-              key=""
+              key="InsDescription"
               labelCol={{ span: 23 }}
               label="Descrição:"
               labelAlign={'left'}
@@ -130,27 +147,6 @@ export default function Receivment({ rawMaterial }: IProp) {
               <Input
                 key="descriptionIns"
                 size="large"
-                style={{ width: 400, marginBottom: '10px' }}
-                placeholder="Descrição do INS"
-                onChange={(e) => {
-                  console.log(e);
-                }}
-              />
-            </Form.Item>
-          </Col>
-          <Col span={8}>
-            <Form.Item
-              key="descriptionFormItem"
-              labelCol={{ span: 23 }}
-              label="Descrição:"
-              labelAlign={'left'}
-              style={{ backgroundColor: 'white', fontWeight: 'bold' }}
-              required
-            >
-              <Input
-                key="descriptionIns"
-                size="large"
-                style={{ width: 400, marginBottom: '10px' }}
                 placeholder="Descrição do INS"
                 onChange={(e) => {
                   console.log(e);
@@ -159,56 +155,121 @@ export default function Receivment({ rawMaterial }: IProp) {
             </Form.Item>
           </Col>
         </Row>
-        <Row gutter={5}>
-          <Col span={12}>
-            <Form.Item
-              key="formItemRawMaterials"
-              labelCol={{ span: 23 }}
-              label="Insumo: "
-              labelAlign={'left'}
-              style={{ backgroundColor: 'white', fontWeight: 'bold' }}
-              required
-            >
-              <Select
-                showSearch
-                size="large"
-                style={{ width: 400, marginBottom: '10px' }}
-                placeholder="Selecion o insumo"
-                optionFilterProp="children"
-                onChange={(e) => {
-                  console.log(e);
-                }}
-              >
-                {rawMaterials.map((item) => (
-                  <>
-                    <Option key={item.id} value={item.id}>
-                      {item.code + ' - ' + item.name}
-                    </Option>
-                  </>
-                ))}
-              </Select>
-            </Form.Item>
-          </Col>
-          <Form.Item
-            key="fatorDeConversão"
-            labelCol={{ span: 23 }}
-            label="Fator de Conversão:"
-            labelAlign={'left'}
-            style={{ backgroundColor: 'white', fontWeight: 'bold' }}
-            required
-          >
-            <Input
-              key="descriptionIns"
-              size="large"
-              style={{ width: 400, marginBottom: '10px' }}
-              placeholder="Digite o Fator"
-              onChange={(e) => {
-                console.log(e);
-              }}
-              pattern="[0-9]+$"
-            />
-          </Form.Item>
-        </Row>
+        <Divider />
+        {rawMaterialsAdded.map((itens) => (
+          <>
+            <Row gutter={24}>
+              <Col span={12}>
+                <Form.Item
+                  key="formItemRawMaterials"
+                  labelCol={{ span: 23 }}
+                  label="Insumo: "
+                  labelAlign={'left'}
+                  style={{ backgroundColor: 'white', fontWeight: 'bold' }}
+                  required
+                >
+                  <Select
+                    showSearch
+                    size="large"
+                    style={{ width: '140%', marginBottom: '10px' }}
+                    placeholder="Selecion o insumo"
+                    optionFilterProp="children"
+                    onChange={(e) => {
+                      console.log(e);
+                    }}
+                  >
+                    {rawMaterials.map((item) => (
+                      <>
+                        <Option key={item.id} value={item.id}>
+                          {item.code + ' - ' + item.name}
+                        </Option>
+                      </>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row>
+              <Col span={6}>
+                <Form.Item
+                  key="formQuantity"
+                  labelCol={{ span: 23 }}
+                  label="Quantidade: "
+                  labelAlign={'left'}
+                  style={{
+                    backgroundColor: 'white',
+                    fontWeight: 'bold',
+                    marginRight: '5%',
+                  }}
+                  required
+                >
+                  <Input
+                    type="number"
+                    key="descriptionIns"
+                    size="large"
+                    placeholder="Descrição do INS"
+                    onChange={(e) => {
+                      console.log(e);
+                    }}
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={6}>
+                <Form.Item
+                  key="formQuantity"
+                  labelCol={{ span: 28 }}
+                  label="Valor Unitário do Insumo: "
+                  labelAlign={'left'}
+                  style={{
+                    backgroundColor: 'white',
+                    fontWeight: 'bold',
+                    marginRight: '5%',
+                  }}
+                  required
+                >
+                  <Input
+                    type="number"
+                    key="descriptionIns"
+                    size="large"
+                    placeholder="Descrição do INS"
+                    onChange={(e) => {
+                      console.log(e);
+                    }}
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={4}>
+                <Form.Item
+                  key="formQuantity"
+                  labelCol={{ span: 23 }}
+                  label="Total: "
+                  labelAlign={'left'}
+                  style={{
+                    backgroundColor: 'white',
+                    fontWeight: 'bold',
+                  }}
+                >
+                  <Input
+                    type="number"
+                    key="descriptionIns"
+                    size="large"
+                    placeholder="Digite o Número da nota fiscal"
+                    onChange={(e) => {
+                      console.log(e);
+                    }}
+                    disabled={true}
+                    style={{ width: '80%', marginRight: '5%' }}
+                  />
+                  <MinusCircleOutlined
+                    onClick={() => {
+                      console.log('a');
+                    }}
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+          </>
+        ))}
       </Modal>
     </div>
   );

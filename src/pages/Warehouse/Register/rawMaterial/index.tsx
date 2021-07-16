@@ -75,9 +75,8 @@ export default function rawMaterial({
     setName('');
     setCode('');
     setIdCategory('');
-    setIdCategory('');
     setCoefficient('');
-
+    setIdUnitMeasure('');
     setIsModalOpen(false);
   }
 
@@ -478,6 +477,7 @@ export default function rawMaterial({
                 size="large"
                 style={{ width: 400, marginBottom: '10px' }}
                 placeholder="Escolha a categoria"
+                value={idCategory}
                 onChange={(e) => {
                   setIdCategory(e.toString());
                 }}
@@ -507,6 +507,7 @@ export default function rawMaterial({
                 style={{ width: 400, marginBottom: '10px' }}
                 placeholder="Select a person"
                 optionFilterProp="children"
+                value={idUnitMeasure}
                 onChange={(e) => {
                   setIdUnitMeasure(e.toString());
                 }}
