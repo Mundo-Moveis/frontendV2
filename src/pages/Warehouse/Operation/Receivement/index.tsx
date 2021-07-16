@@ -58,25 +58,19 @@ export default function Receivment({
   const [fiscalKey, setFiscalKey] = useState('');
   const [fiscalNumber, setFiscalNumber] = useState('');
   const [rawMaterials, setRawMaterials] = useState(rawMaterial);
-  const [rawMaterialsAdded, setRawMaterialsAdded] = useState([{}]);
-
-  console.log('rawMaterial: ', rawMaterial);
+  const [rawMaterialsAdded, setRawMaterialsAdded] = useState([
+    { id: '', quantity: '', grade_value: '', unitary_value: '' },
+  ]);
 
   async function handleRegister(e: FormEvent) {}
   async function handleClose() {}
-  function onlyNumbers(e) {
-    console.log(e);
 
-    var charCode = e.charCode ? e.charCode : e.keyCode;
-    // charCode 8 = backspace
-    // charCode 9 = tab
-    if (charCode != 8 && charCode != 9) {
-      // charCode 48 equivale a 0
-      // charCode 57 equivale a 9
-      if (charCode < 48 || charCode > 57) {
-        return false;
-      }
-    }
+  function addNewReceivement() {
+    const newArray = [
+      ...rawMaterialsAdded,
+      { id: '', quantity: '', grade_value: '', unitary_value: '' },
+    ];
+    setRawMaterialsAdded(newArray);
   }
 
   return (
@@ -98,7 +92,7 @@ export default function Receivment({
       </Layout>
       <Modal
         width={900}
-        title="Cadastro de Insumos"
+        title="Cadastro de Entradas"
         visible={true}
         onCancel={handleClose}
         footer={[
@@ -118,7 +112,7 @@ export default function Receivment({
         <Row gutter={5}>
           <Col span={8}>
             <Form.Item
-              key="insFormItem"
+              key="receivedNameFormItem"
               labelCol={{ span: 23 }}
               label="Nome da Entrada"
               labelAlign={'left'}
@@ -126,7 +120,7 @@ export default function Receivment({
               required
             >
               <Input
-                key="insName"
+                key="receivedName"
                 size="large"
                 placeholder="Digite o código INS, ex: "
                 onChange={(e) => {
@@ -156,7 +150,7 @@ export default function Receivment({
           </Col>
         </Row>
         <Divider />
-        {rawMaterialsAdded.map((itens) => (
+        {rawMaterialsAdded.map((itens, index) => (
           <>
             <Row gutter={24}>
               <Col span={12}>
@@ -181,7 +175,10 @@ export default function Receivment({
                     {rawMaterials.map((item) => (
                       <>
                         <Option key={item.id} value={item.id}>
-                          {item.code + ' - ' + item.name}
+                          {item.code +
+                            ' - ' +
+                            item.name +
+                            ` (${item.unit_measurement_name})`}
                         </Option>
                       </>
                     ))}
@@ -192,7 +189,7 @@ export default function Receivment({
             <Row>
               <Col span={6}>
                 <Form.Item
-                  key="formQuantity"
+                  key="formFiscalKey"
                   labelCol={{ span: 23 }}
                   label="Quantidade: "
                   labelAlign={'left'}
@@ -205,9 +202,9 @@ export default function Receivment({
                 >
                   <Input
                     type="number"
-                    key="descriptionIns"
+                    key="fiscalKey"
                     size="large"
-                    placeholder="Descrição do INS"
+                    placeholder="Número da Nota"
                     onChange={(e) => {
                       console.log(e);
                     }}
@@ -266,6 +263,22 @@ export default function Receivment({
                     }}
                   />
                 </Form.Item>
+              </Col>
+              <Divider />
+            </Row>
+            <Row>
+              <Col>
+                {rawMaterialsAdded.length - 1 === index && (
+                  <Button
+                    key="primary"
+                    title="Novo insumo"
+                    style={{ width: '150%' }}
+                    onClick={addNewReceivement}
+                  >
+                    <PlusOutlined />
+                    Adicionar insumo
+                  </Button>
+                )}
               </Col>
             </Row>
           </>
