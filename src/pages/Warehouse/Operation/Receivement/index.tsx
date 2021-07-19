@@ -20,6 +20,7 @@ import {
   Select,
   Space,
   Table,
+  Tooltip,
 } from 'antd';
 
 import Highlighter from 'react-highlight-words';
@@ -42,6 +43,7 @@ interface IReaceivment {
   id: string;
   quantity: Number;
   grade_value: Number;
+  coefficient: Number;
   unitary_value: Number;
 }
 
@@ -50,8 +52,8 @@ interface IProp {
 }
 
 export default function Receivment({
-      rawMaterial,
-    }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+  rawMaterial,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [description, setDescription] = useState('');
@@ -59,18 +61,86 @@ export default function Receivment({
   const [fiscalNumber, setFiscalNumber] = useState('');
   const [rawMaterials, setRawMaterials] = useState(rawMaterial);
   const [rawMaterialsAdded, setRawMaterialsAdded] = useState([
-    { id: '', quantity: '', grade_value: '', unitary_value: '' },
+    {
+      id: '',
+      quantity: '',
+      grade_value: '',
+      unitary_value: '',
+      total_value: 0,
+    },
   ]);
 
-  async function handleRegister(e: FormEvent) {}
+  async function handleRegister(e: FormEvent) {
+    try {
+      let data = {
+        description: description,
+        fiscal_key: fiscalKey,
+        fiscal_number: fiscalNumber,
+      };
+      let response = await api.post('/warehouse/receipt', data);
+
+      let data2 = {
+        raw_materials: rawMaterialsAdded,
+      };
+
+      let response2 = api.post(`/warehouse/receipt${response.data.id}`, data2);
+    } catch (error) {}
+  }
   async function handleClose() {}
 
   function addNewReceivement() {
     const newArray = [
       ...rawMaterialsAdded,
-      { id: '', quantity: '', grade_value: '', unitary_value: '' },
+      {
+        id: '',
+        quantity: '',
+        grade_value: '',
+        unitary_value: '',
+        total_value: '',
+      },
     ];
     setRawMaterialsAdded(newArray);
+  }
+
+  function removeReceivement(indexOfItem: number) {
+    let newArray = [...rawMaterialsAdded];
+    newArray.splice(indexOfItem, 1);
+    setRawMaterialsAdded(newArray);
+  }
+
+  function handleChangeRawMaterial(value, index) {
+    let newArray = [...rawMaterialsAdded];
+
+    newArray[index].id = value;
+
+    console.log(rawMaterialsAdded);
+  }
+
+  function handleChangeUnitaryValue(value, index) {
+    let newArray = [...rawMaterialsAdded];
+
+    newArray[index].unitary_value = value;
+    newArray[index].total_value =
+      parseFloat(value) * parseFloat(newArray[index].quantity);
+    setRawMaterialsAdded(newArray);
+  }
+
+  function handleChangeQuantity(value, index) {
+    let newArray = [...rawMaterialsAdded];
+    newArray[index].quantity = value;
+    newArray[index].total_value =
+      parseFloat(value) * parseFloat(newArray[index].quantity);
+    newArray[index].quantity = value;
+
+    setRawMaterialsAdded(newArray);
+  }
+
+  function handleChangeGradeValue(value, index) {
+    let newArray = [...rawMaterialsAdded];
+
+    newArray[index].grade_value = value;
+    newArray[index].total_value =
+      parseFloat(value) * parseFloat(newArray[index].quantity);
   }
 
   return (
@@ -91,7 +161,7 @@ export default function Receivment({
         {/* <SearchTable /> */}
       </Layout>
       <Modal
-        width={900}
+        width={800}
         title="Cadastro de Entradas"
         visible={true}
         onCancel={handleClose}
@@ -124,26 +194,46 @@ export default function Receivment({
                 size="large"
                 placeholder="Digite o código INS, ex: "
                 onChange={(e) => {
-                  console.log(e);
+                  setDescription(e.target.value);
+                }}
+                placeholder="Ex: EUCATEX 21/04/21"
+              />
+            </Form.Item>
+          </Col>
+          <Col span={8}>
+            <Form.Item
+              key="fiscalNumberFormItem"
+              labelCol={{ span: 23 }}
+              label="Número da NF-e:"
+              labelAlign={'left'}
+              style={{ backgroundColor: 'white', fontWeight: 'bold' }}
+              required
+            >
+              <Input
+                key="fiscalNumber"
+                size="large"
+                placeholder=""
+                onChange={(e) => {
+                  setFiscalNumber(e.target.value);
                 }}
               />
             </Form.Item>
           </Col>
           <Col span={8}>
             <Form.Item
-              key="InsDescription"
+              key="fiscalNumberFormItem"
               labelCol={{ span: 23 }}
-              label="Descrição:"
+              label="Chave da Nota:"
               labelAlign={'left'}
               style={{ backgroundColor: 'white', fontWeight: 'bold' }}
               required
             >
               <Input
-                key="descriptionIns"
+                key="fiscalKey"
                 size="large"
-                placeholder="Descrição do INS"
+                placeholder=""
                 onChange={(e) => {
-                  console.log(e);
+                  setFiscalKey(e.target.value);
                 }}
               />
             </Form.Item>
@@ -153,7 +243,7 @@ export default function Receivment({
         {rawMaterialsAdded.map((itens, index) => (
           <>
             <Row gutter={24}>
-              <Col span={12}>
+              <Col span={15}>
                 <Form.Item
                   key="formItemRawMaterials"
                   labelCol={{ span: 23 }}
@@ -169,7 +259,7 @@ export default function Receivment({
                     placeholder="Selecion o insumo"
                     optionFilterProp="children"
                     onChange={(e) => {
-                      console.log(e);
+                      handleChangeRawMaterial(e, index);
                     }}
                   >
                     {rawMaterials.map((item) => (
@@ -187,9 +277,9 @@ export default function Receivment({
               </Col>
             </Row>
             <Row>
-              <Col span={6}>
+              <Col span={5}>
                 <Form.Item
-                  key="formFiscalKey"
+                  key="formQuantity"
                   labelCol={{ span: 23 }}
                   label="Quantidade: "
                   labelAlign={'left'}
@@ -202,18 +292,17 @@ export default function Receivment({
                 >
                   <Input
                     type="number"
-                    key="fiscalKey"
+                    key="quantiyKey"
                     size="large"
-                    placeholder="Número da Nota"
                     onChange={(e) => {
-                      console.log(e);
+                      handleChangeQuantity(e.target.value, index);
                     }}
                   />
                 </Form.Item>
               </Col>
               <Col span={6}>
                 <Form.Item
-                  key="formQuantity"
+                  key="formUnitaryValue"
                   labelCol={{ span: 28 }}
                   label="Valor Unitário do Insumo: "
                   labelAlign={'left'}
@@ -222,22 +311,21 @@ export default function Receivment({
                     fontWeight: 'bold',
                     marginRight: '5%',
                   }}
-                  required
                 >
                   <Input
                     type="number"
-                    key="descriptionIns"
+                    key="unitaryValue"
                     size="large"
-                    placeholder="Descrição do INS"
                     onChange={(e) => {
-                      console.log(e);
+                      handleChangeUnitaryValue(e.target.value, index);
                     }}
                   />
                 </Form.Item>
               </Col>
-              <Col span={4}>
+
+              <Col span={6}>
                 <Form.Item
-                  key="formQuantity"
+                  key="formTotal"
                   labelCol={{ span: 23 }}
                   label="Total: "
                   labelAlign={'left'}
@@ -248,31 +336,34 @@ export default function Receivment({
                 >
                   <Input
                     type="number"
-                    key="descriptionIns"
+                    key="totalKey"
                     size="large"
-                    placeholder="Digite o Número da nota fiscal"
-                    onChange={(e) => {
-                      console.log(e);
-                    }}
+                    placeholder="0"
                     disabled={true}
+                    value={itens.total_value}
                     style={{ width: '80%', marginRight: '5%' }}
                   />
-                  <MinusCircleOutlined
-                    onClick={() => {
-                      console.log('a');
-                    }}
-                  />
+                  {rawMaterialsAdded.length != 1 && (
+                    <MinusCircleOutlined
+                      style={{ color: 'red' }}
+                      onClick={() => removeReceivement(index)}
+                    />
+                  )}
                 </Form.Item>
               </Col>
               <Divider />
             </Row>
             <Row>
-              <Col>
+              <Col span={24}>
                 {rawMaterialsAdded.length - 1 === index && (
                   <Button
                     key="primary"
                     title="Novo insumo"
-                    style={{ width: '150%' }}
+                    style={{
+                      width: '100%',
+                      color: 'white',
+                      backgroundColor: 'rgb(5, 155, 50)',
+                    }}
                     onClick={addNewReceivement}
                   >
                     <PlusOutlined />
