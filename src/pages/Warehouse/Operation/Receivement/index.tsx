@@ -52,8 +52,8 @@ interface IProp {
 }
 
 export default function Receivment({
-  rawMaterial,
-}: InferGetServerSidePropsType<typeof getServerSideProps>) {
+      rawMaterial,
+    }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [description, setDescription] = useState('');
@@ -64,9 +64,9 @@ export default function Receivment({
     {
       id: '',
       quantity: '',
-      grade_value: '',
+      grade_value: 0,
       unitary_value: '',
-      total_value: 0,
+      rawMaterialName: '',
     },
   ]);
 
@@ -83,7 +83,7 @@ export default function Receivment({
         raw_materials: rawMaterialsAdded,
       };
 
-      let response2 = api.post(`/warehouse/receipt${response.data.id}`, data2);
+      let response2 = api.post(`/warehouse/receipt/${response.data.id}`, data2);
     } catch (error) {}
   }
   async function handleClose() {}
@@ -94,9 +94,9 @@ export default function Receivment({
       {
         id: '',
         quantity: '',
-        grade_value: '',
+        grade_value: 0,
         unitary_value: '',
-        total_value: '',
+        rawMaterialName: '',
       },
     ];
     setRawMaterialsAdded(newArray);
@@ -111,8 +111,12 @@ export default function Receivment({
   function handleChangeRawMaterial(value, index) {
     let newArray = [...rawMaterialsAdded];
 
-    newArray[index].id = value;
+    newArray[index].id = value[0];
+    newArray[
+      index
+    ].rawMaterialName = `${value[3]} | ${value[1]} / (${value[2]})`;
 
+    setRawMaterialsAdded(newArray);
     console.log(rawMaterialsAdded);
   }
 
@@ -120,7 +124,7 @@ export default function Receivment({
     let newArray = [...rawMaterialsAdded];
 
     newArray[index].unitary_value = value;
-    newArray[index].total_value =
+    newArray[index].grade_value =
       parseFloat(value) * parseFloat(newArray[index].quantity);
     setRawMaterialsAdded(newArray);
   }
@@ -128,9 +132,7 @@ export default function Receivment({
   function handleChangeQuantity(value, index) {
     let newArray = [...rawMaterialsAdded];
     newArray[index].quantity = value;
-    newArray[index].total_value =
-      parseFloat(value) * parseFloat(newArray[index].quantity);
-    newArray[index].quantity = value;
+    newArray[index].grade_value = value;
 
     setRawMaterialsAdded(newArray);
   }
@@ -139,7 +141,7 @@ export default function Receivment({
     let newArray = [...rawMaterialsAdded];
 
     newArray[index].grade_value = value;
-    newArray[index].total_value =
+    newArray[index].grade_value =
       parseFloat(value) * parseFloat(newArray[index].quantity);
   }
 
@@ -154,7 +156,7 @@ export default function Receivment({
               icon={<PlusOutlined style={{ fontSize: '16px' }} />}
               onClick={() => setIsModalOpen(true)}
             >
-              Cadastrar Insumo
+              Cadastrar Recebimento
             </Button>
           </Col>
         </Row>
@@ -163,7 +165,7 @@ export default function Receivment({
       <Modal
         width={800}
         title="Cadastro de Entradas"
-        visible={true}
+        visible={isModalOpen}
         onCancel={handleClose}
         footer={[
           <Button key="back" onClick={handleClose} type="default">
@@ -258,17 +260,28 @@ export default function Receivment({
                     style={{ width: '140%', marginBottom: '10px' }}
                     placeholder="Selecion o insumo"
                     optionFilterProp="children"
+                    value={itens.rawMaterialName}
                     onChange={(e) => {
+                      console.log(e);
+
                       handleChangeRawMaterial(e, index);
                     }}
                   >
                     {rawMaterials.map((item) => (
                       <>
-                        <Option key={item.id} value={item.id}>
-                          {item.code +
-                            ' - ' +
-                            item.name +
-                            ` (${item.unit_measurement_name})`}
+                        <Option
+                          key={item.id}
+                          value={[
+                            item.id,
+                            item.name,
+                            item.unit_measurement_name,
+                            item.code,
+                            item.coefficient,
+                          ]}
+                        >
+                          {`${item.code} |
+                            ${item.name} / 
+                            (${item.unit_measurement_name})`}
                         </Option>
                       </>
                     ))}
@@ -340,7 +353,7 @@ export default function Receivment({
                     size="large"
                     placeholder="0"
                     disabled={true}
-                    value={itens.total_value}
+                    value={itens.grade_value}
                     style={{ width: '80%', marginRight: '5%' }}
                   />
                   {rawMaterialsAdded.length != 1 && (

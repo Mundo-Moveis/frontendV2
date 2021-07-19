@@ -23,7 +23,7 @@ import styles from '../../../../styles/app.module.scss';
 
 import { Notification } from '../../../../components/Notification';
 import { api } from '../../../../services/api';
-import { GetServerSideProps } from 'next';
+import { GetServerSideProps, InferGetServerSidePropsType } from 'next';
 import warehouse from '../warehouse/index';
 
 const { Option } = Select;
@@ -42,7 +42,7 @@ interface IProp {
   warehouse: IWarehouse[];
 }
 
-export default function position({ position, warehouse }: IProp) {
+export default function position({ position, warehouse }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [positions, setPositions] = useState(position);
@@ -336,7 +336,7 @@ export default function position({ position, warehouse }: IProp) {
               icon={<PlusOutlined style={{ fontSize: '16px' }} />}
               onClick={() => setIsModalOpen(true)}
             >
-              Cadastrar Almoxarifado
+              Cadastrar Posição
             </Button>
           </Col>
         </Row>
@@ -344,7 +344,7 @@ export default function position({ position, warehouse }: IProp) {
       </Layout>
 
       <Modal
-        title="Cadastro de Almoxarifado"
+        title="Cadastro de Posição"
         visible={isModalOpen}
         onCancel={handleClose}
         footer={[
@@ -369,10 +369,10 @@ export default function position({ position, warehouse }: IProp) {
           required
         >
           <Input
-            key="warehouseName"
+            key="positionName"
             size="large"
             style={{ width: 400, marginBottom: '10px' }}
-            placeholder="Digite o Nome do Almoxarifado"
+            placeholder="Digite o Nome da Posição"
             value={name}
             onChange={(e) => {
               setName(e.target.value);
