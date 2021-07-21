@@ -42,7 +42,10 @@ interface IProp {
   warehouse: IWarehouse[];
 }
 
-export default function position({ position, warehouse }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+export default function position({
+  position,
+  warehouse,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [positions, setPositions] = useState(position);
@@ -55,6 +58,7 @@ export default function position({ position, warehouse }: InferGetServerSideProp
     setId('');
     setWarehouseId('');
     setName('');
+    setLoading(false);
 
     setIsModalOpen(false);
   }
@@ -91,8 +95,6 @@ export default function position({ position, warehouse }: InferGetServerSideProp
 
       setPositions(filterPosition);
 
-      setLoading(false);
-      setIsModalOpen(false);
       handleClose();
       Notification({
         type: 'success',
