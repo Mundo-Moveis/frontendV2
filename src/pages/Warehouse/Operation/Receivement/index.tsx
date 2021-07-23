@@ -83,6 +83,7 @@ export default function Receivement({ rawMaterial, receivement }: IProp) {
             description: 'Nenhum campo deve ser vazio',
           });
           setLoading(false);
+          return;
         }
 
         let data = {
@@ -130,6 +131,7 @@ export default function Receivement({ rawMaterial, receivement }: IProp) {
             description: 'Nenhum campo pode ser vazio',
           });
           setLoading(false);
+          return;
         }
         let data = {
           description: description,

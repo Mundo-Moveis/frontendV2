@@ -38,7 +38,6 @@ interface IRawMaterial {
   unit_measurement_name: string;
   code: string;
 }
-
 interface IStorage {
   id: string;
   quantity: number;
@@ -58,13 +57,27 @@ export default function Storage({ rawMaterial, storage }: IStorageProps) {
   const [loading, setLoading] = useState(false);
   const [rawMaterials, setRawMaterials] = useState(rawMaterial);
   const [storages, setStorages] = useState(storage);
+  const [receipts, setReceipts] = useState([
+    {
+      warehouse_receipt_description: '',
+      warehouse_raw_material_name: '',
+      raw_material_id: '',
+      receipt_id: '',
+      unitary_value: 0,
+      grade_value: 0,
+    },
+  ]);
+
   const [rawMaterialsAdded, setRawMaterialsAdded] = useState([
     {
-      quantity: '',
+      raw_material_id: '',
+      quantity: 0,
       cargo: '',
-      position: '',
+      position_id: '',
       raw_material_receipt_id: '',
       rawMaterialName: '',
+      receiptName: '',
+      maxQuantity: 0,
     },
   ]);
 
@@ -84,18 +97,47 @@ export default function Storage({ rawMaterial, storage }: IStorageProps) {
     newArray[index].cargo = value;
 
     setRawMaterialsAdded(newArray);
-    console.log(rawMaterialsAdded);
   }
 
   function handleChangeRawMaterial(value, index) {
     let newArray = [...rawMaterialsAdded];
 
+    newArray[index].raw_material_id = value[0];
     newArray[
       index
     ].rawMaterialName = `${value[3]} | ${value[1]} / (${value[2]})`;
 
     setRawMaterialsAdded(newArray);
     console.log(rawMaterialsAdded);
+  }
+
+  async function handleClickReceipt(index) {
+    const newArray = [...rawMaterialsAdded];
+    const response = await api.get(`/warehouse/receipt/raw-material`, {
+      params: { raw_material_id: newArray[index].raw_material_id },
+    });
+
+    setReceipts(response.data);
+    console.log(receipts);
+  }
+
+  function handleChangeReceipt(value, index) {
+    let newArray = [...rawMaterialsAdded];
+
+    newArray[index].raw_material_receipt_id = value[0];
+    newArray[index].receiptName = value[2];
+    newArray[index].raw_material_receipt_id = value[5];
+    newArray[index].maxQuantity = value[3];
+
+    setRawMaterialsAdded(newArray);
+  }
+
+  function handleChangeQuantity(value, index) {
+    let newArray = [...rawMaterialsAdded];
+
+    newArray[index].quantity = value;
+
+    setRawMaterialsAdded(newArray);
   }
 
   class SearchTable extends React.Component {
@@ -342,6 +384,117 @@ export default function Storage({ rawMaterial, storage }: IStorageProps) {
                       </>
                     ))}
                   </Select>
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row gutter={24}>
+              <Col span={7}>
+                <Form.Item
+                  key="formItemReceipts"
+                  labelCol={{ span: 23 }}
+                  label="Entrada: "
+                  labelAlign={'left'}
+                  style={{ backgroundColor: 'white', fontWeight: 'bold' }}
+                  required
+                >
+                  <Select
+                    showSearch
+                    size="large"
+                    style={{ width: '140%', marginBottom: '10px' }}
+                    placeholder="Selecion a entrada"
+                    optionFilterProp="children"
+                    value={selectedIten.receiptName}
+                    disabled={selectedIten.rawMaterialName != '' ? false : true}
+                    onClick={() => {
+                      handleClickReceipt(index);
+                    }}
+                    onChange={(e) => {
+                      handleChangeReceipt(e, index);
+                    }}
+                  >
+                    {receipts.map((item) => (
+                      <>
+                        <Option
+                          key={item.receipt_id}
+                          value={[
+                            item.receipt_id,
+                            item.warehouse_raw_material_name,
+                            item.warehouse_receipt_description,
+                          ]}
+                        >
+                          {item.warehouse_receipt_description}
+                        </Option>
+                      </>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row>
+              <Col span={7} style={{ marginRight: '0.5rem' }}>
+                <Form.Item
+                  key="formItemReceipts"
+                  labelCol={{ span: 23 }}
+                  label="Almoxarifado: "
+                  labelAlign={'left'}
+                  style={{ backgroundColor: 'white', fontWeight: 'bold' }}
+                  required
+                >
+                  <Select
+                    showSearch
+                    size="large"
+                    style={{ width: '100%', marginRight: '10px' }}
+                    placeholder="Selecion a entrada"
+                    optionFilterProp="children"
+                    value={selectedIten.receiptName}
+                    disabled={selectedIten.rawMaterialName != '' ? false : true}
+                    onClick={() => {
+                      handleClickReceipt(index);
+                    }}
+                    onChange={(e) => {
+                      handleChangeReceipt(e, index);
+                    }}
+                  >
+                    {receipts.map((item) => (
+                      <>
+                        <Option
+                          key={item.receipt_id}
+                          value={[
+                            item.receipt_id,
+                            item.warehouse_raw_material_name,
+                            item.warehouse_receipt_description,
+                          ]}
+                        >
+                          {item.warehouse_receipt_description}
+                        </Option>
+                      </>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </Col>
+              <Col span={5}>
+                <Form.Item
+                  key="formQuantity"
+                  labelCol={{ span: 23 }}
+                  label="Quantidade: "
+                  labelAlign={'left'}
+                  style={{
+                    backgroundColor: 'white',
+                    fontWeight: 'bold',
+                    marginRight: '5%',
+                  }}
+                  required
+                >
+                  <Input
+                    type="number"
+                    key="quantiyKey"
+                    size="large"
+                    value={selectedIten.quantity}
+                    disabled={selectedIten.rawMaterialName != '' ? false : true}
+                    onChange={(e) => {
+                      handleChangeQuantity(e.target.value, index);
+                    }}
+                  />
                 </Form.Item>
               </Col>
             </Row>
