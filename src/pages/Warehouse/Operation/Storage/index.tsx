@@ -1,4 +1,4 @@
-import React, { FormEvent, useState } from 'react';
+import React, { FormEvent, useMemo, useState } from 'react';
 
 import {
   DeleteOutlined,
@@ -28,7 +28,7 @@ import styles from '../../../../styles/app.module.scss';
 
 import { Notification } from '../../../../components/Notification';
 import { api } from '../../../../services/api';
-import { GetServerSideProps } from 'next';
+import { GetServerSideProps, InferGetServerSidePropsType } from 'next';
 
 const { Option } = Select;
 
@@ -47,16 +47,30 @@ interface IStorage {
   raw_material_name: string;
 }
 
+interface IWarehouse {
+  id: string;
+  name: string;
+}
+
 interface IStorageProps {
   rawMaterial: IRawMaterial[];
   storage: IStorage[];
+  warehouse: IWarehouse[];
 }
 
-export default function Storage({ rawMaterial, storage }: IStorageProps) {
+export default function Storage({
+  rawMaterial,
+  storage,
+  warehouse,
+}: IStorageProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [loadingReceipt, setLoadingReceipt] = useState(false);
+  const [storageId, setStorageId] = useState('');
   const [rawMaterials, setRawMaterials] = useState(rawMaterial);
   const [storages, setStorages] = useState(storage);
+  const [warehouses, setWarehouses] = useState(warehouse);
+  const [positions, setPositions] = useState([{ id: '', name: '' }]);
   const [receipts, setReceipts] = useState([
     {
       warehouse_receipt_description: '',
@@ -65,24 +79,40 @@ export default function Storage({ rawMaterial, storage }: IStorageProps) {
       receipt_id: '',
       unitary_value: 0,
       grade_value: 0,
+      quantity: '',
+      id: '',
     },
   ]);
 
   const [rawMaterialsAdded, setRawMaterialsAdded] = useState([
     {
       raw_material_id: '',
-      quantity: 0,
+      quantity: '',
       cargo: '',
       position_id: '',
       raw_material_receipt_id: '',
       rawMaterialName: '',
       receiptName: '',
       maxQuantity: 0,
+      warehouse_id: '',
+      warehouseName: '',
+      positionName: '',
     },
   ]);
 
   async function handleRegister(e) {
     e.preventDefault();
+
+    if (storageId) {
+      try {
+      } catch (error) {}
+    } else {
+      const storages = {
+        storageRawMaterials: rawMaterialsAdded,
+      };
+
+      api.post('warehouse/storage', storages);
+    }
   }
 
   function handleClose() {
@@ -108,38 +138,84 @@ export default function Storage({ rawMaterial, storage }: IStorageProps) {
     ].rawMaterialName = `${value[3]} | ${value[1]} / (${value[2]})`;
 
     setRawMaterialsAdded(newArray);
-    console.log(rawMaterialsAdded);
   }
 
   async function handleClickReceipt(index) {
     const newArray = [...rawMaterialsAdded];
+    setLoadingReceipt(true);
     const response = await api.get(`/warehouse/receipt/raw-material`, {
       params: { raw_material_id: newArray[index].raw_material_id },
     });
 
     setReceipts(response.data);
-    console.log(receipts);
+    setLoadingReceipt(false);
   }
 
   function handleChangeReceipt(value, index) {
     let newArray = [...rawMaterialsAdded];
 
-    newArray[index].raw_material_receipt_id = value[0];
+    newArray[index].raw_material_receipt_id = value[4];
     newArray[index].receiptName = value[2];
-    newArray[index].raw_material_receipt_id = value[5];
+
     newArray[index].maxQuantity = value[3];
+    console.log(value[4]);
 
     setRawMaterialsAdded(newArray);
   }
 
+  async function handleChangeWarehouse(value, index) {
+    let newArray = [...rawMaterialsAdded];
+
+    newArray[index].warehouse_id = value[0];
+    newArray[index].warehouseName = value[1];
+
+    setRawMaterialsAdded(newArray);
+
+    const response = await api.get(`/warehouse/position`, {
+      params: { warehouse_id: newArray[index].warehouse_id },
+    });
+
+    setPositions(response.data);
+  }
+
   function handleChangeQuantity(value, index) {
     let newArray = [...rawMaterialsAdded];
+
+    if (value > newArray[index].maxQuantity) {
+      Notification({
+        type: 'error',
+        title: 'Erro',
+        description: 'valor maior que o esperado',
+      });
+      newArray[index].quantity = '';
+      setRawMaterialsAdded(newArray);
+      return;
+    }
+
+    if (value < 0 || value == 0) {
+      Notification({
+        type: 'error',
+        title: 'Erro',
+        description: 'Valor negativo ou 0',
+      });
+      newArray[index].quantity = '';
+      setRawMaterialsAdded(newArray);
+      return;
+    }
 
     newArray[index].quantity = value;
 
     setRawMaterialsAdded(newArray);
   }
 
+  function handleChangePosition(value, index) {
+    let newArray = [...rawMaterialsAdded];
+
+    newArray[index].position_id = value[0];
+    newArray[index].positionName = value[1];
+
+    setRawMaterialsAdded(newArray);
+  }
   class SearchTable extends React.Component {
     state = {
       searchText: '',
@@ -400,6 +476,7 @@ export default function Storage({ rawMaterial, storage }: IStorageProps) {
                   <Select
                     showSearch
                     size="large"
+                    loading={loadingReceipt}
                     style={{ width: '140%', marginBottom: '10px' }}
                     placeholder="Selecion a entrada"
                     optionFilterProp="children"
@@ -420,6 +497,8 @@ export default function Storage({ rawMaterial, storage }: IStorageProps) {
                             item.receipt_id,
                             item.warehouse_raw_material_name,
                             item.warehouse_receipt_description,
+                            item.quantity,
+                            item.id,
                           ]}
                         >
                           {item.warehouse_receipt_description}
@@ -431,7 +510,7 @@ export default function Storage({ rawMaterial, storage }: IStorageProps) {
               </Col>
             </Row>
             <Row>
-              <Col span={7} style={{ marginRight: '0.5rem' }}>
+              <Col span={6} style={{ marginRight: '0.5rem' }}>
                 <Form.Item
                   key="formItemReceipts"
                   labelCol={{ span: 23 }}
@@ -444,28 +523,48 @@ export default function Storage({ rawMaterial, storage }: IStorageProps) {
                     showSearch
                     size="large"
                     style={{ width: '100%', marginRight: '10px' }}
-                    placeholder="Selecion a entrada"
                     optionFilterProp="children"
-                    value={selectedIten.receiptName}
-                    disabled={selectedIten.rawMaterialName != '' ? false : true}
-                    onClick={() => {
-                      handleClickReceipt(index);
-                    }}
+                    disabled={selectedIten.receiptName != '' ? false : true}
+                    value={selectedIten.warehouseName}
                     onChange={(e) => {
-                      handleChangeReceipt(e, index);
+                      handleChangeWarehouse(e, index);
                     }}
                   >
-                    {receipts.map((item) => (
+                    {warehouses.map((item) => (
                       <>
-                        <Option
-                          key={item.receipt_id}
-                          value={[
-                            item.receipt_id,
-                            item.warehouse_raw_material_name,
-                            item.warehouse_receipt_description,
-                          ]}
-                        >
-                          {item.warehouse_receipt_description}
+                        <Option key={item.id} value={[item.id, item.name]}>
+                          {item.name}
+                        </Option>
+                      </>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </Col>
+              <Col span={6} style={{ marginRight: '0.5rem' }}>
+                <Form.Item
+                  key="formItemReceipts"
+                  labelCol={{ span: 23 }}
+                  label="Posição: "
+                  labelAlign={'left'}
+                  style={{ backgroundColor: 'white', fontWeight: 'bold' }}
+                  required
+                >
+                  <Select
+                    showSearch
+                    size="large"
+                    style={{ width: '100%', marginRight: '10px' }}
+                    placeholder="Selecion a entrada"
+                    optionFilterProp="children"
+                    value={selectedIten.positionName}
+                    disabled={selectedIten.rawMaterialName != '' ? false : true}
+                    onChange={(e) => {
+                      handleChangePosition(e, index);
+                    }}
+                  >
+                    {positions.map((item) => (
+                      <>
+                        <Option key={item.id} value={[item.id, item.name]}>
+                          {item.name}
                         </Option>
                       </>
                     ))}
@@ -494,6 +593,28 @@ export default function Storage({ rawMaterial, storage }: IStorageProps) {
                     onChange={(e) => {
                       handleChangeQuantity(e.target.value, index);
                     }}
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={5}>
+                <Form.Item
+                  key="formTotalValue"
+                  labelCol={{ span: 23 }}
+                  label="Falta Armazenar: "
+                  labelAlign={'left'}
+                  style={{
+                    backgroundColor: 'white',
+                    fontWeight: 'bold',
+                    marginRight: '5%',
+                  }}
+                  required
+                >
+                  <Input
+                    type="number"
+                    key="totalValueKey"
+                    size="large"
+                    disabled={true}
+                    value={selectedIten.maxQuantity}
                   />
                 </Form.Item>
               </Col>
@@ -614,14 +735,16 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   try {
     const rawMaterialResponse = await api.get('/warehouse/raw-material');
     const storageResponse = await api.get('/warehouse/storage');
+    const warehouseResponse = await api.get('/warehouse/warehouse');
 
     const rawMaterialData = rawMaterialResponse.data;
     const storageData = storageResponse.data;
-
+    const warehouseData = warehouseResponse.data;
     return {
       props: {
         rawMaterial: rawMaterialData,
         storage: storageData,
+        warehouse: warehouseData,
       },
     };
   } catch (error) {
