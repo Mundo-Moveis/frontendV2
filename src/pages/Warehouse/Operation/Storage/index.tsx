@@ -236,7 +236,16 @@ export default function Storage({
 
     newArray[index].maxQuantity = value[3];
 
-    console.log(value[4]);
+    if (index > 0) {
+      const x = calculateQuanityPerAddedRawMaterial(
+        index,
+        newArray,
+        newArray[index].raw_material_id,
+        value
+      );
+
+      newArray = x;
+    }
 
     setRawMaterialsAdded(newArray);
   }
@@ -287,6 +296,26 @@ export default function Storage({
     newArray[index].quantity = value;
 
     setRawMaterialsAdded(newArray);
+  }
+
+  function calculateQuanityPerAddedRawMaterial(
+    index,
+    array,
+    rawMaterialId,
+    value
+  ) {
+    const equalItens = array.filter((iten, iterator) => {
+      if (iten.raw_material_id === rawMaterialId && iterator > 1) {
+        return iten;
+      }
+    });
+    console.log(Number(array[index].maxQuantity), array[index - 1].quantity);
+
+    array[index].maxQuantity =
+      Number(array[index].maxQuantity) - Number(array[index - 1].quantity);
+
+    return array;
+    console.log(equalItens);
   }
 
   function handleChangePosition(value, index) {
