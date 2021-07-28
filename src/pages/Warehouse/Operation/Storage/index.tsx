@@ -107,16 +107,93 @@ export default function Storage({
       try {
       } catch (error) {}
     } else {
-      const storages = {
-        storageRawMaterials: rawMaterialsAdded,
-      };
+      try {
+        const storages = {
+          storageRawMaterials: rawMaterialsAdded,
+        };
 
-      api.post('warehouse/storage', storages);
+        console.log(storages.storageRawMaterials);
+
+        setLoading(true);
+        const response = await api.post('warehouse/storage', storages);
+        setLoading(false);
+
+        Notification({
+          type: 'success',
+          title: 'Enviado',
+          description: 'Armazenamento feito com sucesso',
+        });
+      } catch (error) {
+        console.error(error.response.data.message);
+
+        setLoading(false);
+
+        Notification({
+          type: 'error',
+          title: 'Erro',
+          description: 'Não foi possível armazenar',
+        });
+      }
     }
   }
 
+  function addNewStorage() {
+    const newArray = [
+      ...rawMaterialsAdded,
+      {
+        raw_material_id: '',
+        quantity: '',
+        cargo: '',
+        position_id: '',
+        raw_material_receipt_id: '',
+        rawMaterialName: '',
+        receiptName: '',
+        maxQuantity: 0,
+        warehouse_id: '',
+        warehouseName: '',
+        positionName: '',
+      },
+    ];
+    setRawMaterialsAdded(newArray);
+  }
+
   function handleClose() {
+    setPositions([{ id: '', name: '' }]);
+    setReceipts([
+      {
+        warehouse_receipt_description: '',
+        warehouse_raw_material_name: '',
+        raw_material_id: '',
+        receipt_id: '',
+        unitary_value: 0,
+        grade_value: 0,
+        quantity: '',
+        id: '',
+      },
+    ]);
+    setRawMaterialsAdded([
+      {
+        raw_material_id: '',
+        quantity: '',
+        cargo: '',
+        position_id: '',
+        raw_material_receipt_id: '',
+        rawMaterialName: '',
+        receiptName: '',
+        maxQuantity: 0,
+        warehouse_id: '',
+        warehouseName: '',
+        positionName: '',
+      },
+    ]);
+    setLoading(false);
     setIsModalOpen(false);
+  }
+
+  function removeReceivement(indexOfItem: number) {
+    let newArray = [...rawMaterialsAdded];
+    newArray.splice(indexOfItem, 1);
+    setRawMaterialsAdded(newArray);
   }
 
   function handleEdit(data: IStorage) {}
@@ -158,6 +235,7 @@ export default function Storage({
     newArray[index].receiptName = value[2];
 
     newArray[index].maxQuantity = value[3];
+
     console.log(value[4]);
 
     setRawMaterialsAdded(newArray);
@@ -168,6 +246,9 @@ export default function Storage({
 
     newArray[index].warehouse_id = value[0];
     newArray[index].warehouseName = value[1];
+
+    newArray[index].position_id = '';
+    newArray[index].positionName = '';
 
     setRawMaterialsAdded(newArray);
 
@@ -181,7 +262,7 @@ export default function Storage({
   function handleChangeQuantity(value, index) {
     let newArray = [...rawMaterialsAdded];
 
-    if (value > newArray[index].maxQuantity) {
+    if (value > Number(newArray[index].maxQuantity)) {
       Notification({
         type: 'error',
         title: 'Erro',
@@ -192,7 +273,7 @@ export default function Storage({
       return;
     }
 
-    if (value < 0 || value == 0) {
+    if (value < 0) {
       Notification({
         type: 'error',
         title: 'Erro',
@@ -310,28 +391,45 @@ export default function Storage({
     render() {
       const columns = [
         {
-          title: 'Descrição',
-          dataIndex: 'description',
-          key: 'description',
+          title: 'Usuário',
+          dataIndex: 'user_name',
+          key: 'user_name',
           width: '30%',
-          ...this.getColumnSearchProps('description'),
-          sorter: (a, b) => a.description.length - b.description.length,
+          ...this.getColumnSearchProps('user_name'),
+          sorter: (a, b) => a.user_name.length - b.user_name.length,
         },
         {
-          title: 'Número da Nota',
-          dataIndex: 'fiscal_number',
-          key: 'fiscal_number',
+          title: 'Insumo',
+          dataIndex: 'raw_material_name',
+          key: 'raw_material_name',
           width: '30%',
-          ...this.getColumnSearchProps('fiscal_number'),
-          sorter: (a, b) => a.fiscal_number.length - b.fiscal_number.length,
+          ...this.getColumnSearchProps('raw_material_name'),
+          sorter: (a, b) =>
+            a.raw_material_name.length - b.raw_material_name.length,
         },
         {
-          title: 'Chave da Nota',
-          dataIndex: 'fiscal_key',
-          key: 'fiscal_key',
+          title: 'Almoxarifado',
+          dataIndex: 'warehouse_name',
+          key: 'warehouse_name',
           width: '30%',
-          ...this.getColumnSearchProps('fiscal_key'),
-          sorter: (a, b) => a.fiscal_key.length - b.fiscal_key.length,
+          ...this.getColumnSearchProps('warehouse_name'),
+          sorter: (a, b) => a.warehouse_name.length - b.warehouse_name.length,
+        },
+        {
+          title: 'Posição',
+          dataIndex: 'position_name',
+          key: 'position_name',
+          width: '30%',
+          ...this.getColumnSearchProps('position_name'),
+          sorter: (a, b) => a.position_name.length - b.position_name.length,
+        },
+        {
+          title: 'Quantidade',
+          dataIndex: 'quantity',
+          key: 'quantity',
+          width: '30%',
+          ...this.getColumnSearchProps('quantity'),
+          sorter: (a, b) => a.quantity.length - b.quantity.length,
         },
         {
           title: 'Criado Em',
@@ -556,7 +654,7 @@ export default function Storage({
                     placeholder="Selecion a entrada"
                     optionFilterProp="children"
                     value={selectedIten.positionName}
-                    disabled={selectedIten.rawMaterialName != '' ? false : true}
+                    disabled={selectedIten.warehouseName != '' ? false : true}
                     onChange={(e) => {
                       handleChangePosition(e, index);
                     }}
@@ -589,7 +687,7 @@ export default function Storage({
                     key="quantiyKey"
                     size="large"
                     value={selectedIten.quantity}
-                    disabled={selectedIten.rawMaterialName != '' ? false : true}
+                    disabled={selectedIten.positionName != '' ? false : true}
                     onChange={(e) => {
                       handleChangeQuantity(e.target.value, index);
                     }}
@@ -605,7 +703,6 @@ export default function Storage({
                   style={{
                     backgroundColor: 'white',
                     fontWeight: 'bold',
-                    marginRight: '5%',
                   }}
                   required
                 >
@@ -615,10 +712,36 @@ export default function Storage({
                     size="large"
                     disabled={true}
                     value={selectedIten.maxQuantity}
+                    style={{ width: '80%', marginRight: '5%' }}
                   />
+                  {rawMaterialsAdded.length != 1 && (
+                    <MinusCircleOutlined
+                      style={{ color: 'red' }}
+                      onClick={() => removeReceivement(index)}
+                    />
+                  )}
                 </Form.Item>
               </Col>
             </Row>
+
+            <Divider />
+            {rawMaterialsAdded.length - 1 === index && (
+              <Button
+                key="primary"
+                title="Nova Armazenagem"
+                style={{
+                  width: '100%',
+                  color: 'white',
+                  backgroundColor: 'rgb(5, 155, 50)',
+                }}
+                disabled={selectedIten.quantity != '' ? false : true}
+                onClick={addNewStorage}
+              >
+                <PlusOutlined />
+                Nova Armazenagem
+              </Button>
+            )}
+
             {/* <Row>
               <Col span={5}>
                 <Form.Item
