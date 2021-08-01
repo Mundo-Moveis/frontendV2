@@ -470,7 +470,7 @@ export default function Receivement({ rawMaterial, exit, warehouse }: IProp) {
               icon={<PlusOutlined style={{ fontSize: '16px' }} />}
               onClick={() => setIsModalOpen(true)}
             >
-              Realizar Armazenagem
+              Realizar Saída
             </Button>
           </Col>
         </Row>
@@ -723,7 +723,7 @@ export default function Receivement({ rawMaterial, exit, warehouse }: IProp) {
             {rawMaterialsAdded.length - 1 === index && (
               <Button
                 key="primary"
-                title="Nova Armazenagem"
+                title="Nova Saída"
                 style={{
                   width: '100%',
                   color: 'white',
@@ -733,7 +733,7 @@ export default function Receivement({ rawMaterial, exit, warehouse }: IProp) {
                 onClick={addNewExit}
               >
                 <PlusOutlined />
-                Nova Armazenagem
+                Nova Saída
               </Button>
             )}
           </>
