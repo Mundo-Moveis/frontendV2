@@ -125,7 +125,7 @@ export default function Sidebar({ screen, display }: SidebarProps) {
                   icon={<SearchOutlined />}
                 >
                   <Menu.Item key="Estoque" icon={<FileExcelOutlined />}>
-                    <Link href="/wmsRawStorage/Search">Estoque</Link>
+                    <Link href="/Warehouse/Consult/Stock">Estoque</Link>
                   </Menu.Item>
 
                   <Menu.Item key="relat-saida" icon={<FileExcelOutlined />}>

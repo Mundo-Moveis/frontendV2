@@ -51,9 +51,12 @@ interface IReaceivment {
   fiscal_number: string;
 }
 
+interface IExit {
+  id: string;
+}
 interface IProp {
   rawMaterial: IRawMaterial[];
-  exit: IRawMaterial[];
+  exit: IExit[];
   warehouse: IWarehouse[];
 }
 
@@ -83,101 +86,55 @@ export default function Receivement({ rawMaterial, exit, warehouse }: IProp) {
   ]);
 
   async function handleRegister(e: FormEvent) {
-    if (id) {
-      try {
-        if (description === '') {
-          Notification({
-            type: 'error',
-            title: 'Erro',
-            description: 'Nenhum campo deve ser vazio',
-          });
-          setLoading(false);
-          return;
-        }
-
-        let data = {
-          description: description,
-        };
-        setLoading(true);
-
-        let response = await api.put(`/warehouse/exit/${id}`, data);
-
-        const filterReceivements = exit.filter((iten) => {
-          if (iten.id !== id) {
-            return iten;
-          }
-        });
-
-        filterReceivements.push(response.data);
-
-        setExits(filterReceivements);
-
-        handleClose();
-        Notification({
-          type: 'success',
-          title: 'Enviado',
-          description: 'Recebimento editado com sucesso',
-        });
-      } catch (error) {
-        console.error(error.response.message);
-        setLoading(false);
+    try {
+      if (description === '') {
         Notification({
           type: 'error',
           title: 'Erro',
-          description: 'Não foi possível editar',
+          description: 'Nenhum campo pode ser vazio',
         });
+        setLoading(false);
+        return;
       }
-    } else {
-      try {
-        if (description === '') {
-          Notification({
-            type: 'error',
-            title: 'Erro',
-            description: 'Nenhum campo pode ser vazio',
-          });
-          setLoading(false);
-          return;
+      let data = {
+        description: description,
+      };
+      setLoading(true);
+      let response = await api.post('/warehouse/exit', data);
+      setLoading(false);
+
+      rawMaterialsAdded.forEach((iten) => {
+        if (iten.cargo === 'Genérico') {
+          return (iten.cargo = '');
         }
-        let data = {
-          description: description,
-        };
-        setLoading(true);
-        let response = await api.post('/warehouse/exit', data);
-        setLoading(false);
+      });
 
-        rawMaterialsAdded.forEach((iten) => {
-          if (iten.cargo === 'Genérico') {
-            return (iten.cargo = '');
-          }
-        });
+      let exitData = { raw_materials: rawMaterialsAdded };
+      console.log(rawMaterialsAdded);
 
-        let exitData = { raw_materials: rawMaterialsAdded };
-        console.log(rawMaterialsAdded);
+      const responseExitRawMaterial = await api.post(
+        `/warehouse/exit/${response.data.id}`,
+        exitData
+      );
 
-        const responseExitRawMaterial = await api.post(
-          `/warehouse/exit/${response.data.id}`,
-          exitData
-        );
+      const newExitRegistered = response.data;
+      exit.push(newExitRegistered);
 
-        const newExitRegistered = response.data;
-        exit.push(newExitRegistered);
-
-        setLoading(false);
-        Notification({
-          type: 'success',
-          title: 'Enviado',
-          description: 'Recebimento feito com sucesso',
-        });
-        handleClose();
-      } catch (error) {
-        console.error(error.response);
-        setLoading(false);
-        Notification({
-          type: 'error',
-          title: 'Erro',
-          description: 'Não foi possível efetuar a saída',
-        });
-      }
+      setLoading(false);
+      Notification({
+        type: 'success',
+        title: 'Enviado',
+        description: 'Recebimento feito com sucesso',
+      });
+      handleClose();
+    } catch (error) {
+      console.error(error.response);
+      setLoading(false);
+      Notification({
+        type: 'error',
+        title: 'Erro',
+        description: 'Não foi possível efetuar a saída',
+      });
     }
   }
 
@@ -332,6 +289,34 @@ export default function Receivement({ rawMaterial, exit, warehouse }: IProp) {
     setIsModalOpen(true);
     console.log(data);
   }
+
+  async function handleDelete(id: string) {
+    console.log(id);
+
+    try {
+      const response = await api.delete(`/warehouse/exit/${id}`);
+
+      const filterExits = exit.filter((iten) => {
+        if (iten.id !== id) {
+          return iten;
+        }
+      });
+
+      setExits(filterExits);
+
+      Notification({
+        type: 'success',
+        title: 'Deletado',
+        description: 'Saída Exlcuída com sucesso',
+      });
+    } catch (error) {
+      Notification({
+        type: 'error',
+        title: 'Erro',
+        description: 'Não foi possível deletar a saída',
+      });
+    }
+  }
   class SearchTable extends React.Component {
     state = {
       searchText: '',
@@ -449,22 +434,28 @@ export default function Receivement({ rawMaterial, exit, warehouse }: IProp) {
           ...this.getColumnSearchProps('created_at'),
           sorter: (a, b) => a.created_at.length - b.created_at.length,
         },
-        // {
-        //   title: 'Operação',
-        //   key: 'operation',
-        //   render: (record) => {
-        //     return (
-        //       <>
-        //         <EditFilled
-        //           style={{ cursor: 'pointer', fontSize: '16px' }}
-        //           onClick={() => handleEdit(record)}
-        //         />
-        //       </>
-        //     );
-        //   },
-        //  },
+        {
+          title: 'Operação',
+          key: 'operation',
+          render: (record) => {
+            return (
+              <>
+                <Popconfirm
+                  title="Confirmar remoção?"
+                  onConfirm={() => handleDelete(record.id)}
+                >
+                  <a href="#" style={{ marginLeft: 20 }}>
+                    <DeleteOutlined
+                      style={{ color: '#ff0000', fontSize: '16px' }}
+                    />
+                  </a>
+                </Popconfirm>
+              </>
+            );
+          },
+        },
       ];
-      return <Table columns={columns} dataSource={exit} />;
+      return <Table columns={columns} dataSource={exits} />;
     }
   }
 
