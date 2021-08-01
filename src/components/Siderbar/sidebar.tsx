@@ -115,7 +115,7 @@ export default function Sidebar({ screen, display }: SidebarProps) {
                   </Menu.Item>
 
                   <Menu.Item key="Saídas" icon={<RightSquareOutlined />}>
-                    <Link href="/wmsRawExit">Saída</Link>
+                    <Link href="/Warehouse/Operation/Exit">Saída</Link>
                   </Menu.Item>
                 </SubMenu>
 
