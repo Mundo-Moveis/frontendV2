@@ -1,27 +1,15 @@
-import React, { useState } from 'react';
-
+import { BarcodeOutlined, SearchOutlined } from '@ant-design/icons';
 import {
   Button,
-  Col,
-  Divider,
-  Layout,
-  Modal,
-  Row,
+  Col, Input, Layout, Row,
   Space,
-  Table,
-  Input,
-  Tooltip,
-  Popconfirm,
-  Typography,
+  Table, Typography
 } from 'antd';
-
-import { SearchOutlined, BarcodeOutlined } from '@ant-design/icons';
-
-import Highlighter from 'react-highlight-words';
-import styles from '../../../../styles/app.module.scss';
-import { Notification } from '../../../../components/Notification';
-import { api } from '../../../../services/api';
 import { GetServerSideProps } from 'next';
+import React, { useState } from 'react';
+import Highlighter from 'react-highlight-words';
+import { api } from '../../../../services/api';
+import Link from 'next/link';
 
 interface IStock {
   id: string;
@@ -42,6 +30,8 @@ const { Title } = Typography;
 
 export default function Stock({ stock }: IProp) {
   const [stocks, setStocks] = useState(stock);
+
+
 
   class SearchTable extends React.Component {
     state = {
@@ -99,9 +89,9 @@ export default function Stock({ stock }: IProp) {
       onFilter: (value, record) =>
         record[dataIndex]
           ? record[dataIndex]
-              .toString()
-              .toLowerCase()
-              .includes(value.toLowerCase())
+            .toString()
+            .toLowerCase()
+            .includes(value.toLowerCase())
           : '',
       onFilterDropdownVisibleChange: (visible) => {
         if (visible) {
@@ -202,9 +192,16 @@ export default function Stock({ stock }: IProp) {
           dataIndex: 'operacao',
           align: 'center',
 
-          render: (record) => {
-            return <BarcodeOutlined />;
-          },
+          render: (record, stock: IStock) => {
+
+            return (
+
+              <a href={`Stock/${stock.bar_code}`} target="_blank" >
+                <BarcodeOutlined style={{ color: "black" }} />
+              </a>
+            )
+          }
+
         },
       ];
       return <Table columns={columns} dataSource={stocks} />;
@@ -226,6 +223,13 @@ export default function Stock({ stock }: IProp) {
 export const getServerSideProps: GetServerSideProps = async (context) => {
   try {
     const { data } = await api.get('/warehouse/stock');
+
+    data.forEach(element => {
+      Object.assign(element, {
+        cargo: element.cargo === "" ? "Generico" : element.cargo
+      })
+
+    });
 
     return {
       props: {
