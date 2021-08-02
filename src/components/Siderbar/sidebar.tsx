@@ -56,7 +56,7 @@ export default function Sidebar({ screen, display }: SidebarProps) {
           >
             <Menu theme="dark" mode="inline" defaultSelectedKeys={['1']}>
               <Menu.Item key="Dashboard" icon={<DashboardOutlined />}>
-                <Link href="/profile">Dashboard</Link>
+                <Link href="/Profile">Dashboard</Link>
               </Menu.Item>
               <SubMenu
                 key="WnsInsumos"

@@ -29,6 +29,7 @@ import styles from '../../../../styles/app.module.scss';
 import { Notification } from '../../../../components/Notification';
 import { api } from '../../../../services/api';
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next';
+import { getAPIClient } from '../../../../services/axios';
 
 const { Option } = Select;
 
@@ -782,14 +783,17 @@ export default function Storage({
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
+  const apiClient = getAPIClient(context);
+
   try {
-    const rawMaterialResponse = await api.get('/warehouse/raw-material');
-    const storageResponse = await api.get('/warehouse/storage');
-    const warehouseResponse = await api.get('/warehouse/warehouse');
+    const rawMaterialResponse = await apiClient.get('/warehouse/raw-material');
+    const storageResponse = await apiClient.get('/warehouse/storage');
+    const warehouseResponse = await apiClient.get('/warehouse/warehouse');
 
     const rawMaterialData = rawMaterialResponse.data;
     const storageData = storageResponse.data;
     const warehouseData = warehouseResponse.data;
+
     return {
       props: {
         rawMaterial: rawMaterialData,
