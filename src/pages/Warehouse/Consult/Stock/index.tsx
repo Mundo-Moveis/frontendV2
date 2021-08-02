@@ -202,12 +202,8 @@ export default function Stock({ stock }: IProp) {
           dataIndex: 'operacao',
           align: 'center',
 
-          render: (text, record) => {
-            return (
-              <React.Fragment>
-                <BarcodeOutlined />
-              </React.Fragment>
-            );
+          render: (record) => {
+            return <BarcodeOutlined />;
           },
         },
       ];

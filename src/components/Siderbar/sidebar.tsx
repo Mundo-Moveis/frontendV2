@@ -117,6 +117,15 @@ export default function Sidebar({ screen, display }: SidebarProps) {
                   <Menu.Item key="Saídas" icon={<RightSquareOutlined />}>
                     <Link href="/Warehouse/Operation/Exit">Saída</Link>
                   </Menu.Item>
+
+                  <Menu.Item
+                    key="Alterar Estoque"
+                    icon={<RightSquareOutlined />}
+                  >
+                    <Link href="/Warehouse/Operation/AlterStock">
+                      Alterar Estoque
+                    </Link>
+                  </Menu.Item>
                 </SubMenu>
 
                 <SubMenu

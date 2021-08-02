@@ -478,7 +478,7 @@ export default function Receivement({ rawMaterial, exit, warehouse }: IProp) {
       </Layout>
       <Modal
         width={800}
-        title="Armazenagem"
+        title="Saída"
         visible={isModalOpen}
         footer={[
           <Button key="back" onClick={handleClose} type="default">
