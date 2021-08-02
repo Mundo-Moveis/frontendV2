@@ -1,40 +1,13 @@
-import React, { ReactNode } from 'react';
-
 import {
-  RightSquareOutlined,
-  DashboardOutlined,
-  PlusOutlined,
-  ExportOutlined,
-  ShoppingCartOutlined,
-  BarcodeOutlined,
-  FileExcelOutlined,
-  UserOutlined,
-  SearchOutlined,
-  SignalFilled,
-  ToolOutlined,
-  AppstoreOutlined,
-  MenuUnfoldOutlined,
-  MenuFoldOutlined,
-  PieChartOutlined,
-  DesktopOutlined,
-  ContainerOutlined,
-  MailOutlined,
-  LeftOutlined,
+  DashboardOutlined, FileExcelOutlined, PlusOutlined, RightSquareOutlined, SearchOutlined, ShoppingCartOutlined
 } from '@ant-design/icons';
-
-import Link from 'next/link';
-
-import { Layout, Menu, Result, Button } from 'antd';
-import { Header } from '../Header';
-import { FaCouch, FaWarehouse } from 'react-icons/fa';
-import { FaTshirt } from 'react-icons/fa';
-import { GoGraph } from 'react-icons/go';
-import { Tooltip } from '@material-ui/core';
-import { FiPackage } from 'react-icons/fi';
-import { BsListCheck } from 'react-icons/bs';
-
+import { Button, Layout, Menu, Result } from 'antd';
 import 'antd/dist/antd.css';
-import styles from './sidebar.module.scss';
+import Link from 'next/link';
+import React, { ReactNode } from 'react';
+import { FiPackage } from 'react-icons/fi';
+import { Header } from '../Header';
+import { useRouter } from 'next/router'
 
 const { Sider, Content } = Layout;
 const { SubMenu } = Menu;
@@ -45,6 +18,8 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ screen, display }: SidebarProps) {
+  const router = useRouter();
+
   return (
     <>
       {display ? (
@@ -155,7 +130,9 @@ export default function Sidebar({ screen, display }: SidebarProps) {
           </Sider>
 
           <Layout>
-            <Header />
+            {router.pathname !== '/Warehouse/Consult/Stock/[barcode]' &&
+              <Header />
+            }
             {screen && (
               <Content style={{ margin: '20px 16px 0' }}>
                 <div>{screen}</div>

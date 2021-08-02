@@ -105,7 +105,7 @@ export default function Receivement({ rawMaterial, receivement }: IProp) {
 
         setReceivements(filterReceivements);
 
-        console.log('ouu>: ', receivements);
+
 
         handleClose();
         Notification({
@@ -256,7 +256,7 @@ export default function Receivement({ rawMaterial, receivement }: IProp) {
 
     setIsLockInsChange(true);
     setIsModalOpen(true);
-    console.log(data);
+
   }
   class SearchTable extends React.Component {
     state = {
@@ -314,9 +314,9 @@ export default function Receivement({ rawMaterial, receivement }: IProp) {
       onFilter: (value, record) =>
         record[dataIndex]
           ? record[dataIndex]
-              .toString()
-              .toLowerCase()
-              .includes(value.toLowerCase())
+            .toString()
+            .toLowerCase()
+            .includes(value.toLowerCase())
           : '',
       onFilterDropdownVisibleChange: (visible) => {
         if (visible) {
