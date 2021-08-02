@@ -153,7 +153,7 @@ export default function rawMaterial({
 
         setLoading(true);
         const response = await api.post('/warehouse/raw-material/', data);
-        console.log(response.data);
+
 
         setLoading(false);
 
@@ -208,13 +208,13 @@ export default function rawMaterial({
   }
 
   async function handleEdit(data: IRawMaterial) {
-    console.log(data);
+
     setId(data.id);
     setName(data.name);
     setCode(data.code);
 
     const response = await api.get(`/warehouse/raw-material/${data.id}`);
-    console.log(response.data);
+
 
     setIdCategory(response.data.category_id);
     setIdUnitMeasure(response.data.unit_of_measurement_id);
@@ -277,9 +277,9 @@ export default function rawMaterial({
       onFilter: (value, record) =>
         record[dataIndex]
           ? record[dataIndex]
-              .toString()
-              .toLowerCase()
-              .includes(value.toLowerCase())
+            .toString()
+            .toLowerCase()
+            .includes(value.toLowerCase())
           : '',
       onFilterDropdownVisibleChange: (visible) => {
         if (visible) {

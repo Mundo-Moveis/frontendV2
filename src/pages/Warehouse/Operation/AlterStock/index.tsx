@@ -114,7 +114,7 @@ export default function AlterSotock({
       });
       handleClose();
     } catch (error) {
-      console.log(error.response.message);
+
       Notification({
         type: 'error',
         title: 'Erro',
@@ -189,9 +189,9 @@ export default function AlterSotock({
       onFilter: (value, record) =>
         record[dataIndex]
           ? record[dataIndex]
-              .toString()
-              .toLowerCase()
-              .includes(value.toLowerCase())
+            .toString()
+            .toLowerCase()
+            .includes(value.toLowerCase())
           : '',
       onFilterDropdownVisibleChange: (visible) => {
         if (visible) {

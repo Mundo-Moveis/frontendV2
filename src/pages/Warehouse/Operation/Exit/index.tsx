@@ -110,7 +110,6 @@ export default function Receivement({ rawMaterial, exit, warehouse }: IProp) {
       });
 
       let exitData = { raw_materials: rawMaterialsAdded };
-      console.log(rawMaterialsAdded);
 
       const responseExitRawMaterial = await api.post(
         `/warehouse/exit/${response.data.id}`,
@@ -162,7 +161,7 @@ export default function Receivement({ rawMaterial, exit, warehouse }: IProp) {
     newArray[index].position_id = value[0];
     newArray[index].positionName = value[1];
 
-    console.log(newArray[index].position_id);
+
 
     setRawMaterialsAdded(newArray);
   }
@@ -220,7 +219,7 @@ export default function Receivement({ rawMaterial, exit, warehouse }: IProp) {
     ].rawMaterialName = `${value[3]} | ${value[1]} / (${value[2]})`;
 
     setRawMaterialsAdded(newArray);
-    console.log(rawMaterialsAdded);
+
   }
 
   function handleChangeQuantity(value, index) {
@@ -257,7 +256,7 @@ export default function Receivement({ rawMaterial, exit, warehouse }: IProp) {
     let newArray = [...rawMaterialsAdded];
     const cargoName = value[1];
 
-    console.log(value);
+
 
     if (cargoName === 'Genérico') {
       newArray[index].maxQuantity = value[2];
@@ -287,11 +286,11 @@ export default function Receivement({ rawMaterial, exit, warehouse }: IProp) {
 
     setIsLockInsChange(true);
     setIsModalOpen(true);
-    console.log(data);
+
   }
 
   async function handleDelete(id: string) {
-    console.log(id);
+
 
     try {
       const response = await api.delete(`/warehouse/exit/${id}`);
@@ -373,9 +372,9 @@ export default function Receivement({ rawMaterial, exit, warehouse }: IProp) {
       onFilter: (value, record) =>
         record[dataIndex]
           ? record[dataIndex]
-              .toString()
-              .toLowerCase()
-              .includes(value.toLowerCase())
+            .toString()
+            .toLowerCase()
+            .includes(value.toLowerCase())
           : '',
       onFilterDropdownVisibleChange: (visible) => {
         if (visible) {
