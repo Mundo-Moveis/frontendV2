@@ -518,7 +518,9 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   const apiClient = getAPIClient(context);
 
   try {
-    const rawMaterialResponse = await apiClient.get('/warehouse/stock');
+    const rawMaterialResponse = await apiClient.get(
+      '/warehouse/stock/raw-materials'
+    );
     const positionResesponse = await apiClient.get('/warehouse/position');
     const responseAlteredData = await apiClient.get('/warehouse/alter-stock');
 

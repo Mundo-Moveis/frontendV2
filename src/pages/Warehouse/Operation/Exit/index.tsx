@@ -738,7 +738,9 @@ export default function Receivement({ rawMaterial, exit, warehouse }: IProp) {
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const apiClient = getAPIClient(context);
   try {
-    const rawMaterialResponse = await apiClient.get('/warehouse/stock');
+    const rawMaterialResponse = await apiClient.get(
+      '/warehouse/stock/raw-materials'
+    );
     const warehouseResponse = await apiClient.get('/warehouse/warehouse');
     const exitResponse = await apiClient.get('/warehouse/exit');
 
