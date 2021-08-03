@@ -29,6 +29,7 @@ import styles from '../../../../styles/app.module.scss';
 import { Notification } from '../../../../components/Notification';
 import { api } from '../../../../services/api';
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next';
+import { getAPIClient } from '../../../../services/axios';
 
 const { Option } = Select;
 
@@ -161,8 +162,6 @@ export default function Receivement({ rawMaterial, exit, warehouse }: IProp) {
     newArray[index].position_id = value[0];
     newArray[index].positionName = value[1];
 
-
-
     setRawMaterialsAdded(newArray);
   }
 
@@ -219,7 +218,6 @@ export default function Receivement({ rawMaterial, exit, warehouse }: IProp) {
     ].rawMaterialName = `${value[3]} | ${value[1]} / (${value[2]})`;
 
     setRawMaterialsAdded(newArray);
-
   }
 
   function handleChangeQuantity(value, index) {
@@ -256,8 +254,6 @@ export default function Receivement({ rawMaterial, exit, warehouse }: IProp) {
     let newArray = [...rawMaterialsAdded];
     const cargoName = value[1];
 
-
-
     if (cargoName === 'Genérico') {
       newArray[index].maxQuantity = value[2];
       newArray[index].cargo = '';
@@ -286,12 +282,9 @@ export default function Receivement({ rawMaterial, exit, warehouse }: IProp) {
 
     setIsLockInsChange(true);
     setIsModalOpen(true);
-
   }
 
   async function handleDelete(id: string) {
-
-
     try {
       const response = await api.delete(`/warehouse/exit/${id}`);
 
@@ -372,9 +365,9 @@ export default function Receivement({ rawMaterial, exit, warehouse }: IProp) {
       onFilter: (value, record) =>
         record[dataIndex]
           ? record[dataIndex]
-            .toString()
-            .toLowerCase()
-            .includes(value.toLowerCase())
+              .toString()
+              .toLowerCase()
+              .includes(value.toLowerCase())
           : '',
       onFilterDropdownVisibleChange: (visible) => {
         if (visible) {
@@ -743,10 +736,11 @@ export default function Receivement({ rawMaterial, exit, warehouse }: IProp) {
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
+  const apiClient = getAPIClient(context);
   try {
-    const rawMaterialResponse = await api.get('/warehouse/stock');
-    const warehouseResponse = await api.get('/warehouse/warehouse');
-    const exitResponse = await api.get('/warehouse/exit');
+    const rawMaterialResponse = await apiClient.get('/warehouse/stock');
+    const warehouseResponse = await apiClient.get('/warehouse/warehouse');
+    const exitResponse = await apiClient.get('/warehouse/exit');
 
     const rawMaterialData = rawMaterialResponse.data;
     const exitData = exitResponse.data;

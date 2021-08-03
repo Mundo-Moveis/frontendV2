@@ -29,6 +29,7 @@ import styles from '../../../../styles/app.module.scss';
 import { Notification } from '../../../../components/Notification';
 import { api } from '../../../../services/api';
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next';
+import { getAPIClient } from '../../../../services/axios';
 
 const { Option } = Select;
 
@@ -104,8 +105,6 @@ export default function Receivement({ rawMaterial, receivement }: IProp) {
         filterReceivements.push(response.data);
 
         setReceivements(filterReceivements);
-
-
 
         handleClose();
         Notification({
@@ -256,7 +255,6 @@ export default function Receivement({ rawMaterial, receivement }: IProp) {
 
     setIsLockInsChange(true);
     setIsModalOpen(true);
-
   }
   class SearchTable extends React.Component {
     state = {
@@ -314,9 +312,9 @@ export default function Receivement({ rawMaterial, receivement }: IProp) {
       onFilter: (value, record) =>
         record[dataIndex]
           ? record[dataIndex]
-            .toString()
-            .toLowerCase()
-            .includes(value.toLowerCase())
+              .toString()
+              .toLowerCase()
+              .includes(value.toLowerCase())
           : '',
       onFilterDropdownVisibleChange: (visible) => {
         if (visible) {
@@ -661,9 +659,10 @@ export default function Receivement({ rawMaterial, receivement }: IProp) {
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
+  const apiClient = getAPIClient(context);
   try {
-    const rawMaterialResponse = await api.get('/warehouse/raw-material');
-    const receivementResponse = await api.get('/warehouse/receipt');
+    const rawMaterialResponse = await apiClient.get('/warehouse/raw-material');
+    const receivementResponse = await apiClient.get('/warehouse/receipt');
 
     const rawMaterialData = rawMaterialResponse.data;
     const receivementData = receivementResponse.data;

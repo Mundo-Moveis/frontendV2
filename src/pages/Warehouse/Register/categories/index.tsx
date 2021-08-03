@@ -24,6 +24,7 @@ import styles from '../../../../styles/app.module.scss';
 import { Notification } from '../../../../components/Notification';
 import { api } from '../../../../services/api';
 import { GetServerSideProps } from 'next';
+import { getAPIClient } from '../../../../services/axios';
 
 const { Option } = Select;
 
@@ -367,8 +368,9 @@ export default function categories({ categorie, notFound }: IProps) {
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
+  const apiClient = getAPIClient(context);
   try {
-    const { data } = await api.get('/warehouse/categories');
+    const { data } = await apiClient.get('/warehouse/categories');
 
     return {
       props: {
@@ -379,7 +381,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     console.error(error);
     return {
       props: {
-        categorie: [{ id: '', name: '', createdAt: '' }],
+        categorie: [],
       },
     };
   }

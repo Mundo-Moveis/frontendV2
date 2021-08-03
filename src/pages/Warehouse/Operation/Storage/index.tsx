@@ -107,13 +107,12 @@ export default function Storage({
 
     if (storageId) {
       try {
-      } catch (error) { }
+      } catch (error) {}
     } else {
       try {
         const storages = {
           storageRawMaterials: rawMaterialsAdded,
         };
-
 
         setLoading(true);
         const response = await api.post('warehouse/storage', storages);
@@ -199,7 +198,7 @@ export default function Storage({
     setRawMaterialsAdded(newArray);
   }
 
-  function handleEdit(data: IStorage) { }
+  function handleEdit(data: IStorage) {}
 
   function handleChangeCargo(value, index) {
     let newArray = [...rawMaterialsAdded];
@@ -233,7 +232,6 @@ export default function Storage({
 
   function handleChangeReceipt(value, index) {
     let newArray = [...rawMaterialsAdded];
-
 
     newArray[index].raw_material_receipt_id = value[4];
     newArray[index].receiptName = value[2];
@@ -295,19 +293,17 @@ export default function Storage({
       return;
     }
 
-
     let maxQuantity: number = Number(newArray[index].quantityHasToStorage);
 
     rawMaterialsAdded.forEach((item, itemIndex) => {
       if (
         item.raw_material_receipt_id ===
-        newArray[index].raw_material_receipt_id &&
+          newArray[index].raw_material_receipt_id &&
         itemIndex !== index
       ) {
         maxQuantity -= Number(item.quantity);
       }
     });
-
 
     newArray[index].quantity = value;
     newArray[index].maxQuantity = maxQuantity;
@@ -386,9 +382,9 @@ export default function Storage({
       onFilter: (value, record) =>
         record[dataIndex]
           ? record[dataIndex]
-            .toString()
-            .toLowerCase()
-            .includes(value.toLowerCase())
+              .toString()
+              .toLowerCase()
+              .includes(value.toLowerCase())
           : '',
       onFilterDropdownVisibleChange: (visible) => {
         if (visible) {
@@ -805,6 +801,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     return {
       props: {
         rawMaterial: [{}],
+        storage: [{}],
+        warehouse: [{}],
       },
     };
   }

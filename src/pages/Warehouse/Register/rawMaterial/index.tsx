@@ -26,6 +26,7 @@ import styles from '../../../../styles/app.module.scss';
 import { Notification } from '../../../../components/Notification';
 import { api } from '../../../../services/api';
 import { GetServerSideProps } from 'next';
+import { getAPIClient } from '../../../../services/axios';
 const { Option } = Select;
 
 interface IRawMaterial {
@@ -154,7 +155,6 @@ export default function rawMaterial({
         setLoading(true);
         const response = await api.post('/warehouse/raw-material/', data);
 
-
         setLoading(false);
 
         Notification({
@@ -208,13 +208,11 @@ export default function rawMaterial({
   }
 
   async function handleEdit(data: IRawMaterial) {
-
     setId(data.id);
     setName(data.name);
     setCode(data.code);
 
     const response = await api.get(`/warehouse/raw-material/${data.id}`);
-
 
     setIdCategory(response.data.category_id);
     setIdUnitMeasure(response.data.unit_of_measurement_id);
@@ -277,9 +275,9 @@ export default function rawMaterial({
       onFilter: (value, record) =>
         record[dataIndex]
           ? record[dataIndex]
-            .toString()
-            .toLowerCase()
-            .includes(value.toLowerCase())
+              .toString()
+              .toLowerCase()
+              .includes(value.toLowerCase())
           : '',
       onFilterDropdownVisibleChange: (visible) => {
         if (visible) {
@@ -549,10 +547,14 @@ export default function rawMaterial({
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
+  const apiClient = getAPIClient(context);
+
   try {
-    const rawMaterialResponse = await api.get('/warehouse/raw-material');
-    const unMeaseureResponse = await api.get('/warehouse/unit-measurement');
-    const categorieResponse = await api.get('/warehouse/categories');
+    const rawMaterialResponse = await apiClient.get('/warehouse/raw-material');
+    const unMeaseureResponse = await apiClient.get(
+      '/warehouse/unit-measurement'
+    );
+    const categorieResponse = await apiClient.get('/warehouse/categories');
 
     const rawMaterialData = rawMaterialResponse.data;
     const unMeasureData = unMeaseureResponse.data;
@@ -569,7 +571,9 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     console.error(error);
     return {
       props: {
-        itens: [{ id: '', name: '', created_at: '' }],
+        rawMaterial: [],
+        unMeasure: [],
+        categorie: [],
       },
     };
   }

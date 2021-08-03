@@ -413,9 +413,10 @@ export default function position({
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
+  const apiClient = getAPIClient(context);
   try {
-    const positionResponse = await api.get('warehouse/position');
-    const warehouseResponse = await api.get('warehouse/warehouse');
+    const positionResponse = await apiClient.get('warehouse/position');
+    const warehouseResponse = await apiClient.get('warehouse/warehouse');
 
     return {
       props: {
@@ -425,6 +426,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     };
   } catch (error) {
     console.error(error);
-    return { props: { position: [{}], warehouse: [{}] } };
+    return { props: { position: [], warehouse: [] } };
   }
 };

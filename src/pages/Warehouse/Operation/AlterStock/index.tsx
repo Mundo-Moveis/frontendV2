@@ -30,6 +30,7 @@ import { Notification } from '../../../../components/Notification';
 import { api } from '../../../../services/api';
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next';
 import TextArea from 'antd/lib/input/TextArea';
+import { getAPIClient } from '../../../../services/axios';
 
 const { Option } = Select;
 
@@ -114,7 +115,6 @@ export default function AlterSotock({
       });
       handleClose();
     } catch (error) {
-
       Notification({
         type: 'error',
         title: 'Erro',
@@ -189,9 +189,9 @@ export default function AlterSotock({
       onFilter: (value, record) =>
         record[dataIndex]
           ? record[dataIndex]
-            .toString()
-            .toLowerCase()
-            .includes(value.toLowerCase())
+              .toString()
+              .toLowerCase()
+              .includes(value.toLowerCase())
           : '',
       onFilterDropdownVisibleChange: (visible) => {
         if (visible) {
@@ -484,10 +484,12 @@ export default function AlterSotock({
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
+  const apiClient = getAPIClient(context);
+
   try {
-    const rawMaterialResponse = await api.get('/warehouse/stock');
-    const positionResesponse = await api.get('/warehouse/position');
-    const responseAlteredData = await api.get('/warehouse/alter-stock');
+    const rawMaterialResponse = await apiClient.get('/warehouse/stock');
+    const positionResesponse = await apiClient.get('/warehouse/position');
+    const responseAlteredData = await apiClient.get('/warehouse/alter-stock');
 
     const rawMaterialData = rawMaterialResponse.data;
     const positionData = positionResesponse.data;
