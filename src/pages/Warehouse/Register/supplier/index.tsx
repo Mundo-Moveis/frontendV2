@@ -84,6 +84,7 @@ export default function supplier({ supplier }: IProp) {
           description: 'Fornecedor Editado com sucesso',
         });
       } catch (error) {
+        setLoading(false);
         return Notification({
           type: 'error',
           title: 'Erro',
@@ -120,6 +121,7 @@ export default function supplier({ supplier }: IProp) {
         });
       } catch (error) {
         console.error(error);
+        setLoading(false);
         return Notification({
           type: 'error',
           title: 'Erro',

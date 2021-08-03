@@ -110,12 +110,15 @@ export default function Storage({
       } catch (error) {}
     } else {
       try {
-        const storages = {
+        const storagesForAdd = {
           storageRawMaterials: rawMaterialsAdded,
         };
 
         setLoading(true);
-        const response = await api.post('warehouse/storage', storages);
+        const response = await api.post('/warehouse/storage', storagesForAdd);
+
+        const newRawMaterialAddedRegistered = response.data;
+        storages.push(newRawMaterialAddedRegistered);
         setLoading(false);
 
         Notification({
@@ -123,8 +126,10 @@ export default function Storage({
           title: 'Enviado',
           description: 'Armazenamento feito com sucesso',
         });
+
+        handleClose();
       } catch (error) {
-        console.error(error.response.data.message);
+        console.error(error);
 
         setLoading(false);
 
@@ -199,6 +204,8 @@ export default function Storage({
   }
 
   function handleEdit(data: IStorage) {}
+
+  async function handleClickCargo() {}
 
   function handleChangeCargo(value, index) {
     let newArray = [...rawMaterialsAdded];
@@ -532,13 +539,15 @@ export default function Storage({
                   label="Lote"
                   labelAlign={'left'}
                   style={{ backgroundColor: 'white', fontWeight: 'bold' }}
-                  required
                 >
                   <Input
                     key="storageCargo"
                     size="large"
-                    placeholder="Digite o nome do lote "
+                    placeholder="Digite o nome do Lote "
                     value={selectedIten.cargo}
+                    onClick={() => {
+                      handleClickCargo;
+                    }}
                     onChange={(e) => {
                       handleChangeCargo(e.target.value, index);
                     }}

@@ -39,6 +39,7 @@ interface IRawMaterial {
   raw_material_name: string;
   unit_of_measurement_abbreviation: string;
   raw_material_code: string;
+  cargo: string;
 }
 
 interface IPosition {
@@ -68,6 +69,7 @@ export default function AlterSotock({
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [cargo, setCargo] = useState('');
+  const [cargos, setCargos] = useState([]);
   const [movedQuantity, setMovedQuantity] = useState(0);
   const [newPositionId, setNewPositionId] = useState('');
   const [newPositionName, setNewPositionName] = useState('');
@@ -115,6 +117,27 @@ export default function AlterSotock({
       });
       handleClose();
     } catch (error) {
+      setLoading(false);
+      Notification({
+        type: 'error',
+        title: 'Erro',
+        description: `${error.response.message}`,
+      });
+    }
+  }
+
+  async function handleClickCargo() {
+    try {
+      const response = await api.get('/warehouse/stock', {
+        params: { raw_material_id: rawMaterialId },
+      });
+
+      console.log('bostarr');
+      console.log(response.data);
+
+      setCargos(response.data);
+    } catch (error) {
+      console.error(error);
       Notification({
         type: 'error',
         title: 'Erro',
@@ -301,28 +324,7 @@ export default function AlterSotock({
         ]}
       >
         <Row gutter={5}>
-          <Col span={13}>
-            <Form.Item
-              key="CargoFormItem"
-              labelCol={{ span: 23 }}
-              label="Nome do Lote"
-              labelAlign={'left'}
-              style={{ backgroundColor: 'white', fontWeight: 'bold' }}
-            >
-              <Input
-                key="Cargo"
-                size="large"
-                placeholder="Digite aqui o nome do lote"
-                value={cargo}
-                onChange={(e) => {
-                  setCargo(e.target.value);
-                }}
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-        <Row gutter={5}>
-          <Col span={19}>
+          <Col span={16}>
             <Form.Item
               key="CargoFormItem"
               labelCol={{ span: 23 }}
@@ -358,6 +360,36 @@ export default function AlterSotock({
                       {`${item.raw_material_code} |
                           ${item.raw_material_name} / 
                           (${item.unit_of_measurement_abbreviation})`}
+                    </Option>
+                  </>
+                ))}
+              </Select>
+            </Form.Item>
+          </Col>
+          <Col span={8}>
+            <Form.Item
+              key="CargoFormItem"
+              labelCol={{ span: 23 }}
+              label="Lote"
+              labelAlign={'left'}
+              style={{ backgroundColor: 'white', fontWeight: 'bold' }}
+              required
+            >
+              <Select
+                showSearch
+                size="large"
+                placeholder="Selecione o Lote"
+                optionFilterProp="children"
+                value={cargo}
+                onClick={handleClickCargo}
+                onChange={(e) => {
+                  setCargo(e);
+                }}
+              >
+                {cargos.map((item, index) => (
+                  <>
+                    <Option key={index} value={item.cargo}>
+                      {item.cargo !== '' ? item.cargo : 'Genérico'}
                     </Option>
                   </>
                 ))}
@@ -461,10 +493,9 @@ export default function AlterSotock({
             <Form.Item
               key="ReasonFormItem"
               labelCol={{ span: 23 }}
-              label="Nome do Lote"
+              label="Motivo"
               labelAlign={'left'}
               style={{ backgroundColor: 'white', fontWeight: 'bold' }}
-              required
             >
               <TextArea
                 key="Reason"

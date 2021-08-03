@@ -25,6 +25,7 @@ import { Notification } from '../../../../components/Notification';
 import { api } from '../../../../services/api';
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next';
 import warehouse from '../warehouse/index';
+import { getAPIClient } from '../../../../services/axios';
 
 const { Option } = Select;
 

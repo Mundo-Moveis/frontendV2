@@ -6,7 +6,7 @@ export default function Profile() {
     <>
       <div className={styles.profile}>
         <img src="/coffeBreak.svg" />
-        <h1>Em Manutenção...</h1>
+        <h1>Página em construção...</h1>
       </div>
     </>
   );
