@@ -112,7 +112,6 @@ export default function AlterSotock({
         raw_material_id: rawMaterialId,
         reason: reason,
       };
-      console.log('DATAA: ', data);
 
       setLoading(true);
       const response = await api.post('/warehouse/alter-stock', data);
@@ -154,6 +153,7 @@ export default function AlterSotock({
   async function handleChangeOldPosition(position_id) {
     const response = await api.get('/warehouse/stock', {
       params: {
+        raw_material_id: rawMaterialId,
         position_id: position_id,
         cargo: cargo,
       },
@@ -172,8 +172,6 @@ export default function AlterSotock({
     }
 
     setMaxQuantity(response.data[0].quantity);
-
-    console.log('aa', response.data);
   }
 
   function handleChangeQuantity(quantity: number) {
@@ -196,8 +194,6 @@ export default function AlterSotock({
       setMovedQuantity(0);
       return;
     }
-
-    console.log(quantity);
 
     setMovedQuantity(quantity);
   }
