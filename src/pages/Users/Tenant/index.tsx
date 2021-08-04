@@ -44,7 +44,7 @@ interface IProp {
   tenant: ITenant[];
 }
 
-export default function supplier({ tenant }: IProp) {
+export default function Tenant({ tenant }: IProp) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [tenants, setTenants] = useState(tenant);
@@ -151,7 +151,7 @@ export default function supplier({ tenant }: IProp) {
           street: street,
         };
         setLoading(true);
-        const response = await api.post(`/warehouse/supplier`, data);
+        const response = await api.post(`/tenant`, data);
         setLoading(false);
 
         const newTenantRegistered = response.data;
