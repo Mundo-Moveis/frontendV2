@@ -419,7 +419,18 @@ export default function User({ tenant }: IProp) {
           style={{ backgroundColor: 'white', fontWeight: 'bold' }}
           required
         >
-          <MaskedInput
+          {' '}
+          <Input
+            key="tenantPhone"
+            size="large"
+            placeholder="Ex: (18) 99643-7333"
+            style={{ width: 250 }}
+            value={phone}
+            onChange={(e) => {
+              setPhone(e.target.value);
+            }}
+          />
+          {/* <MaskedInput
             mask="(11) 1 1111-1111"
             name="card"
             key="tenantPhone"
@@ -430,7 +441,7 @@ export default function User({ tenant }: IProp) {
             onChange={(e) => {
               setPhone(e.target.value);
             }}
-          />
+          /> */}
         </Form.Item>
         <Form.Item
           labelCol={{ span: 23 }}

@@ -111,14 +111,14 @@ export default function Tenant({ tenant }: IProp) {
         Notification({
           type: 'success',
           title: 'Enviado',
-          description: 'Fornecedor Editado com sucesso',
+          description: 'Inquilino Editado com sucesso',
         });
       } catch (error) {
         setLoading(false);
         return Notification({
           type: 'error',
           title: 'Erro',
-          description: 'Não foi possível editar o Fornecedor',
+          description: 'Não foi possível editar o Inquilino',
         });
       }
     } else {
@@ -189,14 +189,14 @@ export default function Tenant({ tenant }: IProp) {
       Notification({
         type: 'success',
         title: 'Sucesso',
-        description: 'Fornecedor Deletado com sucesso',
+        description: 'Inquilino Deletado com sucesso',
       });
     } catch (error) {
       console.error(error);
       Notification({
         type: 'error',
         title: 'Erro',
-        description: 'Não foi possível Deletar o fornecedor',
+        description: 'Não foi possível Deletar o Inquilino',
       });
     }
   }
@@ -467,7 +467,7 @@ export default function Tenant({ tenant }: IProp) {
               <Input
                 key="supplierEmail"
                 size="large"
-                placeholder="Digite o Email do Fornecedor"
+                placeholder="Digite o Email do Inquilino"
                 value={email}
                 onChange={(e) => {
                   setEmail(e.target.value);
