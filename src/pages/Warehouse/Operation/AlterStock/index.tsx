@@ -47,17 +47,14 @@ interface IPosition {
   name: string;
 }
 
-interface IAlteredIten {
+interface IWarehouse {
   id: string;
-  movedQuantity: string;
-  raw_material_name: string;
-  user_name: string;
-  s;
+  name: string;
 }
-
 interface IProp {
   rawMaterial: IRawMaterial[];
   position: IPosition[];
+  warehouse: IWarehouse[];
   alteredIten: [];
 }
 
@@ -65,6 +62,7 @@ export default function AlterSotock({
   rawMaterial,
   position,
   alteredIten,
+  warehouse,
 }: IProp) {
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -78,6 +76,13 @@ export default function AlterSotock({
   const [rawMaterialId, setRawMaterialId] = useState('');
   const [rawMaterialName, setRawMaterialName] = useState<any>();
   const [reason, setReason] = useState('');
+  const [warehouseOldPositionName, setWarehouseOldPositionName] = useState('');
+  const [warehouseOldPositionId, setWarehouseOldPositionId] = useState('');
+  const [warehouseNewPositionName, setWarehouseNewPositionName] = useState('');
+  const [warehouseNewPositionId, setWarehouseNewPositionId] = useState('');
+  const [maxQuantity, setMaxQuantity] = useState(0);
+  const [warehouses, setWarehouses] = useState(warehouse);
+
   const [alteredItens, setAlteredItens] = useState(alteredIten);
   const [positions, setPositions] = useState(position);
   const [rawMaterials, setRawMaterials] = useState(rawMaterial);
@@ -107,9 +112,11 @@ export default function AlterSotock({
         raw_material_id: rawMaterialId,
         reason: reason,
       };
+      console.log('DATAA: ', data);
 
+      setLoading(true);
       const response = await api.post('/warehouse/alter-stock', data);
-
+      setLoading(false);
       Notification({
         type: 'success',
         title: 'Alterado',
@@ -118,12 +125,81 @@ export default function AlterSotock({
       handleClose();
     } catch (error) {
       setLoading(false);
+      console.error(error.response.data.message);
+
       Notification({
         type: 'error',
         title: 'Erro',
-        description: `${error.response.message}`,
+        description: `Não foi possível alterar`,
       });
     }
+  }
+
+  async function handleClickPosition() {
+    const response = await api.get(`/warehouse/position`, {
+      params: { warehouse_id: warehouseOldPositionId },
+    });
+
+    setPositions(response.data);
+  }
+
+  async function handleClickNewPosition() {
+    const response = await api.get(`/warehouse/position`, {
+      params: { warehouse_id: warehouseNewPositionId },
+    });
+
+    setPositions(response.data);
+  }
+
+  async function handleChangeOldPosition(position_id) {
+    const response = await api.get('/warehouse/stock', {
+      params: {
+        position_id: position_id,
+        cargo: cargo,
+      },
+    });
+
+    if (!response.data[0]) {
+      Notification({
+        type: 'error',
+        title: 'Não Encontrado',
+        description: `Não existe insumo nesta posição`,
+      });
+      setMaxQuantity(0);
+      setOldPositionId('');
+      setOldPositionName('');
+      return;
+    }
+
+    setMaxQuantity(response.data[0].quantity);
+
+    console.log('aa', response.data);
+  }
+
+  function handleChangeQuantity(quantity: number) {
+    if (quantity > Number(maxQuantity)) {
+      Notification({
+        type: 'error',
+        title: 'Erro',
+        description: 'valor maior que o esperado',
+      });
+      setMovedQuantity(0);
+      return;
+    }
+
+    if (quantity < 0) {
+      Notification({
+        type: 'error',
+        title: 'Erro',
+        description: 'Valor negativo ou 0',
+      });
+      setMovedQuantity(0);
+      return;
+    }
+
+    console.log(quantity);
+
+    setMovedQuantity(quantity);
   }
 
   async function handleClickCargo() {
@@ -131,9 +207,6 @@ export default function AlterSotock({
       const response = await api.get('/warehouse/stock', {
         params: { raw_material_id: rawMaterialId },
       });
-
-      console.log('bostarr');
-      console.log(response.data);
 
       setCargos(response.data);
     } catch (error) {
@@ -147,13 +220,36 @@ export default function AlterSotock({
   }
 
   function handleClose() {
+    setRawMaterialId('');
+    setRawMaterialName('');
     setCargo('');
-    setMovedQuantity(0);
     setNewPositionId('');
+    setNewPositionName('');
+    setWarehouseNewPositionId('');
+    setWarehouseNewPositionName('');
     setOldPositionId('');
+    setOldPositionName('');
+    setWarehouseOldPositionId('');
+    setWarehouseOldPositionName('');
+    setMovedQuantity(0);
+    setMaxQuantity(0);
     setReason('');
 
     setIsModalOpen(false);
+  }
+
+  function clearInputsWhenSelectdRawMaterial() {
+    setCargo('');
+    setNewPositionId('');
+    setNewPositionName('');
+    setWarehouseNewPositionId('');
+    setWarehouseNewPositionName('');
+    setOldPositionId('');
+    setOldPositionName('');
+    setWarehouseOldPositionId('');
+    setWarehouseOldPositionName('');
+    setMovedQuantity(0);
+    setMaxQuantity(0);
   }
 
   class SearchTable extends React.Component {
@@ -344,6 +440,8 @@ export default function AlterSotock({
                   setRawMaterialName(`${e[3]} |
                   ${e[1]} / 
                   (${e[2]})`);
+
+                  clearInputsWhenSelectdRawMaterial();
                 }}
               >
                 {rawMaterials.map((item) => (
@@ -380,6 +478,7 @@ export default function AlterSotock({
                 size="large"
                 placeholder="Selecione o Lote"
                 optionFilterProp="children"
+                disabled={rawMaterialId === '' ? true : false}
                 value={cargo}
                 onClick={handleClickCargo}
                 onChange={(e) => {
@@ -397,12 +496,13 @@ export default function AlterSotock({
             </Form.Item>
           </Col>
         </Row>
+        <Divider />
         <Row gutter={10}>
-          <Col span={6}>
+          <Col span={7}>
             <Form.Item
               key="formItemPositions"
               labelCol={{ span: 23 }}
-              label="Posição Atual: "
+              label="Almoxarifado Antigo: "
               labelAlign={'left'}
               style={{
                 backgroundColor: 'white',
@@ -413,15 +513,133 @@ export default function AlterSotock({
               <Select
                 showSearch
                 size="large"
+                placeholder="Selecione o almoxarifado"
+                optionFilterProp="children"
+                value={warehouseOldPositionName}
+                onChange={(e) => {
+                  setWarehouseOldPositionId(e[0]);
+                  setWarehouseOldPositionName(e[1]);
+                  setOldPositionId('');
+                  setOldPositionName('');
+                  setMaxQuantity(0);
+                }}
+              >
+                {warehouses.map((item) => (
+                  <>
+                    <Option key={item.id} value={[item.id, item.name]}>
+                      {item.name}
+                    </Option>
+                  </>
+                ))}
+              </Select>
+            </Form.Item>
+          </Col>
+          <Col span={6}>
+            <Form.Item
+              key="formItemNewPositions"
+              labelCol={{ span: 23 }}
+              label="Posição Antiga: "
+              labelAlign={'left'}
+              style={{
+                backgroundColor: 'white',
+                fontWeight: 'bold',
+              }}
+              required
+            >
+              <Select
+                showSearch
+                size="large"
+                style={{ width: '100%' }}
                 placeholder="Selecione a Posição"
+                disabled={warehouseOldPositionId === '' ? true : false}
                 optionFilterProp="children"
                 value={oldPositionName}
+                onClick={() => {
+                  handleClickPosition();
+                }}
                 onChange={(e) => {
                   setOldPositionId(e[0]);
                   setOldPositionName(e[1]);
+                  handleChangeOldPosition(e[0]);
                 }}
               >
                 {positions.map((item) => (
+                  <>
+                    <Option key={item.id} value={[item.id, item.name]}>
+                      {item.name}
+                    </Option>
+                  </>
+                ))}
+              </Select>
+            </Form.Item>
+          </Col>
+          <Col span={5}>
+            <Form.Item
+              key="QuantityFormItem"
+              labelCol={{ span: 23 }}
+              label="Quantidade"
+              labelAlign={'left'}
+              style={{ backgroundColor: 'white', fontWeight: 'bold' }}
+              required
+            >
+              <Input
+                key="Cargo"
+                type="number"
+                size="large"
+                placeholder="Digite aqui a quantidade"
+                value={movedQuantity}
+                onChange={(e) => {
+                  handleChangeQuantity(Number(e.target.value));
+                }}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={5}>
+            <Form.Item
+              key="QuantityFormItem"
+              labelCol={{ span: 23 }}
+              label="Máximo"
+              labelAlign={'left'}
+              style={{ backgroundColor: 'white', fontWeight: 'bold' }}
+            >
+              <Input
+                key="Cargo"
+                size="large"
+                disabled={true}
+                placeholder="Digite aqui a quantidade"
+                value={maxQuantity}
+              />
+            </Form.Item>
+          </Col>
+        </Row>
+        <Divider />
+        <Row gutter={10}>
+          <Col span={7}>
+            <Form.Item
+              key="formItemPositions"
+              labelCol={{ span: 23 }}
+              label="Novo Almoxarifado: "
+              labelAlign={'left'}
+              style={{
+                backgroundColor: 'white',
+                fontWeight: 'bold',
+              }}
+              required
+            >
+              <Select
+                showSearch
+                size="large"
+                placeholder="Selecione o almoxarifado"
+                optionFilterProp="children"
+                value={warehouseNewPositionName}
+                onChange={(e) => {
+                  setWarehouseNewPositionId(e[0]);
+                  setWarehouseNewPositionName(e[1]);
+                  setNewPositionId('');
+                  setNewPositionName('');
+                }}
+              >
+                {warehouses.map((item) => (
                   <>
                     <Option key={item.id} value={[item.id, item.name]}>
                       {item.name}
@@ -449,7 +667,11 @@ export default function AlterSotock({
                 style={{ width: '100%' }}
                 placeholder="Selecione a Posição"
                 optionFilterProp="children"
+                disabled={warehouseNewPositionId === '' ? true : false}
                 value={newPositionName}
+                onClick={() => {
+                  handleClickNewPosition();
+                }}
                 //disabled={isLockInsChange}
                 onChange={(e) => {
                   setNewPositionId(e[0]);
@@ -466,28 +688,8 @@ export default function AlterSotock({
               </Select>
             </Form.Item>
           </Col>
-
-          <Col span={7}>
-            <Form.Item
-              key="QuantityFormItem"
-              labelCol={{ span: 23 }}
-              label="Quantidade"
-              labelAlign={'left'}
-              style={{ backgroundColor: 'white', fontWeight: 'bold' }}
-              required
-            >
-              <Input
-                key="Cargo"
-                size="large"
-                placeholder="Digite aqui a quantidade"
-                value={movedQuantity}
-                onChange={(e) => {
-                  setMovedQuantity(Number(e.target.value));
-                }}
-              />
-            </Form.Item>
-          </Col>
         </Row>
+        <Divider />
         <Row gutter={5}>
           <Col span={13}>
             <Form.Item
@@ -522,17 +724,20 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       '/warehouse/stock/raw-materials'
     );
     const positionResesponse = await apiClient.get('/warehouse/position');
-    const responseAlteredData = await apiClient.get('/warehouse/alter-stock');
+    const alteredDataResponse = await apiClient.get('/warehouse/alter-stock');
+    const warehouseResponse = await apiClient.get('/warehouse/warehouse');
 
     const rawMaterialData = rawMaterialResponse.data;
     const positionData = positionResesponse.data;
-    const alteredItenData = responseAlteredData.data;
+    const alteredItenData = alteredDataResponse.data;
+    const warehouseData = warehouseResponse.data;
 
     return {
       props: {
         rawMaterial: rawMaterialData,
         position: positionData,
         alteredIten: alteredItenData,
+        warehouse: warehouseData,
       },
     };
   } catch (error) {
@@ -540,6 +745,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     return {
       props: {
         rawMaterial: [],
+        position: [],
+        alteredIten: [],
         warehouse: [],
       },
     };
