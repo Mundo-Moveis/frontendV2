@@ -205,8 +205,6 @@ export default function Storage({
 
   function handleEdit(data: IStorage) {}
 
-  async function handleClickCargo() {}
-
   function handleChangeCargo(value, index) {
     let newArray = [...rawMaterialsAdded];
 
@@ -545,9 +543,6 @@ export default function Storage({
                     size="large"
                     placeholder="Digite o nome do Lote "
                     value={selectedIten.cargo}
-                    onClick={() => {
-                      handleClickCargo;
-                    }}
                     onChange={(e) => {
                       handleChangeCargo(e.target.value, index);
                     }}
